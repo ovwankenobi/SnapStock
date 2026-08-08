@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev-secret-key-change-me"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
     CORS_ORIGINS: list[str] = ["http://localhost:5173"]
+    CORS_ORIGIN_REGEX: str | None = None
     UPLOAD_DIR: str = "uploads"
     AUTH_REGISTER_RATE_LIMIT: str = "5/minute"
     AUTH_LOGIN_RATE_LIMIT: str = "10/minute"
