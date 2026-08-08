@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "SnapStock",
+    "tagline": "Point of sale for your sari-sari store or market stall"
+  },
+  "roles": {
+    "seller": { "title": "Seller", "description": "Manage inventory & sales" },
+    "buyer": { "title": "Buyer", "description": "Shop from local sellers" }
+  },
+  "auth": {
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "submitting": "Logging in...",
+      "noAccount": "New here?",
+      "createAccount": "Create an account",
+      "error": "Incorrect email or password."
+    },
+    "register": {
+      "chooseRole": "I am a...",
+      "titleSeller": "Create your seller account",
+      "titleBuyer": "Create your buyer account",
+      "back": "Back",
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Phone (optional)",
+      "businessName": "Business name",
+      "businessType": "Business type",
+      "businessTypeWholesale": "Wholesale",
+      "businessTypeRetail": "Retail",
+      "businessTypeBoth": "Both",
+      "address": "Address (optional)",
+      "description": "Description (optional)",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "error": "Something went wrong. Please check your details and try again.",
+      "emailTaken": "That email is already registered."
+    }
+  },
+  "language": {
+    "english": "English",
+    "tagalog": "Tagalog"
+  },
+  "nav": {
+    "logout": "Log out",
+    "darkMode": "Switch to dark mode",
+    "lightMode": "Switch to light mode"
+  }
+}

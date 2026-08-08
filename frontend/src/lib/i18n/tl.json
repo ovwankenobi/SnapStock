@@ -1,0 +1,53 @@
+{
+  "common": {
+    "appName": "SnapStock",
+    "tagline": "Point of sale para sa iyong sari-sari store o puwesto sa palengke"
+  },
+  "roles": {
+    "seller": { "title": "Nagtitinda", "description": "Pamahalaan ang imbentaryo at benta" },
+    "buyer": { "title": "Bumibili", "description": "Mamili mula sa mga lokal na nagtitinda" }
+  },
+  "auth": {
+    "login": {
+      "email": "Email",
+      "password": "Password",
+      "submit": "Mag-log In",
+      "submitting": "Nag-lo-log in...",
+      "noAccount": "Bago dito?",
+      "createAccount": "Gumawa ng account",
+      "error": "Maling email o password."
+    },
+    "register": {
+      "chooseRole": "Ako ay...",
+      "titleSeller": "Gumawa ng seller account",
+      "titleBuyer": "Gumawa ng buyer account",
+      "back": "Bumalik",
+      "fullName": "Buong pangalan",
+      "email": "Email",
+      "password": "Password",
+      "phone": "Numero ng telepono (opsyonal)",
+      "businessName": "Pangalan ng negosyo",
+      "businessType": "Uri ng negosyo",
+      "businessTypeWholesale": "Wholesale",
+      "businessTypeRetail": "Tingi",
+      "businessTypeBoth": "Pareho",
+      "address": "Address (opsyonal)",
+      "description": "Paglalarawan (opsyonal)",
+      "submit": "Gumawa ng Account",
+      "submitting": "Gumagawa ng account...",
+      "haveAccount": "May account ka na?",
+      "signIn": "Mag-sign in",
+      "error": "May nagkamali. Pakisuri ang iyong mga detalye at subukan muli.",
+      "emailTaken": "Nakarehistro na ang email na iyon."
+    }
+  },
+  "language": {
+    "english": "English",
+    "tagalog": "Tagalog"
+  },
+  "nav": {
+    "logout": "Mag-log out",
+    "darkMode": "Lumipat sa dark mode",
+    "lightMode": "Lumipat sa light mode"
+  }
+}

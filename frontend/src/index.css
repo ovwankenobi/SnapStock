@@ -1,0 +1,107 @@
+:root {
+  --color-bg: #f1efe8;
+  --color-surface: #ffffff;
+  --color-surface-alt: #eae6da;
+  --color-border: #dedacb;
+  --color-text: #2c2c2a;
+  --color-muted: #888780;
+  --color-primary: #0f6e56;
+  --color-primary-soft: #dceee9;
+  --color-on-primary: #ffffff;
+  --color-success: #639922;
+  --color-success-soft: #e7f0da;
+  --color-warning: #ba7517;
+  --color-warning-soft: #f6e8d3;
+  --color-danger: #e24b4a;
+  --color-danger-soft: #fbe1e0;
+  --color-info: #2c2c2a;
+  --color-info-soft: #e7e6e2;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-full: 999px;
+
+  --font-sans: -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
+
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #1a1917;
+    --color-surface: #242320;
+    --color-surface-alt: #2c2c2a;
+    --color-border: #3a3934;
+    --color-text: #f1efe8;
+    --color-muted: #948f82;
+    --color-primary: #3fa98a;
+    --color-primary-soft: #1d3b33;
+    --color-on-primary: #08211b;
+    --color-success: #8fc24c;
+    --color-success-soft: #2b3a1a;
+    --color-warning: #e0a23f;
+    --color-warning-soft: #3d2e14;
+    --color-danger: #f07e7d;
+    --color-danger-soft: #3d2321;
+    --color-info: #b9b7ae;
+    --color-info-soft: #333230;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #1a1917;
+  --color-surface: #242320;
+  --color-surface-alt: #2c2c2a;
+  --color-border: #3a3934;
+  --color-text: #f1efe8;
+  --color-muted: #948f82;
+  --color-primary: #3fa98a;
+  --color-primary-soft: #1d3b33;
+  --color-on-primary: #08211b;
+  --color-success: #8fc24c;
+  --color-success-soft: #2b3a1a;
+  --color-warning: #e0a23f;
+  --color-warning-soft: #3d2e14;
+  --color-danger: #f07e7d;
+  --color-danger-soft: #3d2321;
+  --color-info: #b9b7ae;
+  --color-info-soft: #333230;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: 15px/1.45 var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

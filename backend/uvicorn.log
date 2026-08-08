@@ -1,0 +1,90 @@
+INFO:     Started server process [32104]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:6767 (Press CTRL+C to quit)
+INFO:     127.0.0.1:53964 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53968 - "GET /api/v1/conversations HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63464 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "OPTIONS /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/catalog/products?page=1&page_size=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/catalog/products?page=1&page_size=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "POST /api/v1/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "OPTIONS /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "OPTIONS /api/v1/products/low-stock HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "OPTIONS /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "OPTIONS /api/v1/analytics/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "OPTIONS /api/v1/analytics/top-products?range=today&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "OPTIONS /api/v1/analytics/sales-trend?range=week HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "GET /api/v1/products/low-stock HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "GET /api/v1/analytics/top-products?range=today&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/analytics/sales-trend?range=week HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /api/v1/analytics/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "OPTIONS /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/catalog/products?page=1&page_size=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "OPTIONS /api/v1/catalog/products/3e05c24c-2c0f-4e53-8ca2-c1bf1e8f2818 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "GET /api/v1/catalog/products/3e05c24c-2c0f-4e53-8ca2-c1bf1e8f2818 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "POST /api/v1/conversations HTTP/1.1" 201 Created
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:55206 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:63464 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63464 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55206 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 201 Created
+INFO:     127.0.0.1:55206 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50817 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:50817 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "OPTIONS /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62496 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55471 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53293 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:62496 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:62496 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:53640 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53640 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 201 Created
+INFO:     127.0.0.1:53640 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55117 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:55117 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58179 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58179 - "POST /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/read HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58179 - "GET /api/v1/conversations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51186 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages?page=1&page_size=30 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51363 - "GET /api/v1/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51363 - "OPTIONS /api/v1/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51363 - "POST /api/v1/auth/register HTTP/1.1" 201 Created
+INFO:     127.0.0.1:51363 - "OPTIONS /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51363 - "OPTIONS /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61960 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "GET /api/v1/conversations/7f4be1b3-84d0-4ba3-9c93-1a5491a358d0/messages HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53735 - "OPTIONS /api/v1/conversations HTTP/1.1" 200 OK

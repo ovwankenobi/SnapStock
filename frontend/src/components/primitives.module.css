@@ -1,0 +1,155 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-success { background: var(--color-success-soft); color: var(--color-success); }
+.badge-warning { background: var(--color-warning-soft); color: var(--color-warning); }
+.badge-danger { background: var(--color-danger-soft); color: var(--color-danger); }
+.badge-info { background: var(--color-info-soft); color: var(--color-info); }
+.badge-neutral { background: var(--color-surface-alt); color: var(--color-muted); }
+
+.avatar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: #fff;
+  font-weight: 800;
+}
+.avatar-sm { width: 36px; height: 36px; font-size: 13px; }
+.avatar-md { width: 44px; height: 44px; font-size: 15px; }
+.avatar-lg { width: 72px; height: 72px; font-size: 26px; }
+
+.thumb {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-weight: 800;
+}
+.thumb-sm { width: 44px; height: 44px; font-size: 16px; border-radius: var(--radius-sm); }
+.thumb-md { width: 52px; height: 52px; font-size: 19px; }
+.thumb-lg { width: 100%; height: 96px; font-size: 30px; }
+.thumb-photo { object-fit: cover; }
+
+.stat-tile {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+.stat-label { font-size: 12.5px; font-weight: 600; color: var(--color-muted); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 800; }
+.stat-sub { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
+
+.segmented {
+  display: flex;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.segmented-option {
+  flex: 1;
+  height: 44px;
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.segmented-option-active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0 16px;
+}
+.search-field input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 14.5px;
+}
+.search-field input::placeholder { color: var(--color-muted); }
+.search-field svg { flex: none; color: var(--color-muted); }
+
+.empty-state {
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--color-muted);
+  font-size: 13.5px;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 16px;
+  color: var(--color-muted);
+  font-size: 13.5px;
+}
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.icon-button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.icon-button-ghost { background: var(--color-surface-alt); color: var(--color-text); }
+.icon-button-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.icon-button-danger { background: transparent; color: var(--color-danger); }
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stepper button {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font-weight: 800;
+  cursor: pointer;
+}
+.stepper-value { min-width: 20px; text-align: center; font-weight: 700; }

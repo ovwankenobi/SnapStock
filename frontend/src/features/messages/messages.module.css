@@ -1,0 +1,23 @@
+.list-page { height: 100%; overflow-y: auto; max-width: 640px; }
+.hint { font-size: 12.5px; color: var(--color-muted); padding: 20px 28px; }
+
+.chat-page { height: 100%; display: flex; flex-direction: column; }
+
+.product-pin {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+.product-pin-body { min-width: 0; }
+.product-pin-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.product-pin-price { font-size: 12px; color: var(--color-muted); }
