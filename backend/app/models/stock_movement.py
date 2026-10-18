@@ -15,6 +15,9 @@ class StockMovementReason(str, enum.Enum):
     RESTOCK = "restock"
     CORRECTION = "correction"
     INITIAL = "initial"
+    VOID = "void"
+    REFUND = "refund"
+    CANCEL = "cancel"
 
 
 class StockMovement(UUIDPkMixin, CreatedAtMixin, Base):

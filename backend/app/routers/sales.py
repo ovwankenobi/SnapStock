@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.deps import require_seller
 from app.database import get_db
-from app.models.sale import Sale, SaleType
+from app.models.sale import Sale, SaleStatus, SaleType
 from app.models.user import User
 from app.schemas.sale import (
     BuyerSearchResult,
@@ -17,6 +17,7 @@ from app.schemas.sale import (
     SaleListItem,
     SaleListResponse,
     SaleRead,
+    SaleStatusChange,
 )
 from app.services import sales as sales_service
 
@@ -42,11 +43,18 @@ def _to_sale_read(db: Session, sale: Sale) -> SaleRead:
         buyer_id=sale.buyer_id,
         buyer_name=buyer_name,
         sale_type=sale.sale_type,
+        subtotal_cents=sale.subtotal_cents,
+        discount_cents=sale.discount_cents,
         total_cents=sale.total_cents,
+        status=sale.status,
+        status_changed_at=sale.status_changed_at,
+        status_reason=sale.status_reason,
         payment_method=sale.payment_method,
         receipt_code=sale.receipt_code,
         note=sale.note,
         created_at=sale.created_at,
+        payment_proof_url=sale.payment_proof_url,
+        proof_submitted_at=sale.proof_submitted_at,
         items=[SaleItemRead.model_validate(item) for item in sale.items],
     )
 
@@ -73,9 +81,10 @@ def create_sale(
             sale_type=payload.sale_type,
             buyer_id=payload.buyer_id,
             payment_method=payload.payment_method,
-            items=[(item.product_id, item.quantity) for item in payload.items],
+            items=[(item.product_id, item.quantity, item.unit_price_cents) for item in payload.items],
             note=payload.note,
             total_cents_override=payload.total_cents,
+            discount_cents=payload.discount_cents,
         )
     except sales_service.BuyerNotFoundError as exc:
         db.rollback()
@@ -83,7 +92,7 @@ def create_sale(
     except sales_service.ProductNotFoundError as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except sales_service.InsufficientStockError as exc:
+    except (sales_service.InsufficientStockError, sales_service.InvalidDiscountError) as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -97,6 +106,7 @@ def list_sales(
     end: datetime | None = Query(default=None),
     sale_type: SaleType | None = Query(default=None),
     buyer_id: uuid.UUID | None = Query(default=None),
+    sale_status: SaleStatus | None = Query(default=None, alias="status"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
     seller: User = Depends(require_seller),
@@ -116,6 +126,7 @@ def list_sales(
         end=end,
         sale_type=sale_type,
         buyer_id=buyer_id,
+        status=sale_status,
         page=page,
         page_size=page_size,
     )
@@ -126,11 +137,18 @@ def list_sales(
             buyer_id=sale.buyer_id,
             buyer_name=buyer_names.get(sale.buyer_id) if sale.buyer_id else None,
             sale_type=sale.sale_type,
+            subtotal_cents=sale.subtotal_cents,
+            discount_cents=sale.discount_cents,
             total_cents=sale.total_cents,
+            status=sale.status,
+            status_changed_at=sale.status_changed_at,
+            status_reason=sale.status_reason,
             payment_method=sale.payment_method,
             receipt_code=sale.receipt_code,
             note=sale.note,
             created_at=sale.created_at,
+            payment_proof_url=sale.payment_proof_url,
+            proof_submitted_at=sale.proof_submitted_at,
             item_count=len(sale.items),
         )
         for sale in items
@@ -158,12 +176,16 @@ def get_public_receipt(receipt_code: str, db: Session = Depends(get_db)):
                 name=item.product_name_snapshot,
                 quantity=item.quantity,
                 unit_type=item.unit_type_snapshot,
+                unit_label=item.unit_label_snapshot,
                 unit_price_cents=item.unit_price_cents_snapshot,
                 line_total_cents=item.line_total_cents,
             )
             for item in sale.items
         ],
+        subtotal_cents=sale.subtotal_cents,
+        discount_cents=sale.discount_cents,
         total_cents=sale.total_cents,
+        status=sale.status,
         payment_method=sale.payment_method,
         created_at=sale.created_at,
     )
@@ -179,3 +201,62 @@ def get_sale(
     if sale is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sale not found")
     return _to_sale_read(db, sale)
+
+
+def _change_status(change, db: Session, sale_id: uuid.UUID, seller: User, payload: SaleStatusChange) -> SaleRead:
+    try:
+        sale = change(db, sale_id, seller.id, payload.reason)
+    except (sales_service.SaleStatusError, sales_service.PaymentProofMissingError) as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    if sale is None:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sale not found")
+    return _to_sale_read(db, sale)
+
+
+@router.post("/{sale_id}/void", response_model=SaleRead)
+def void_sale(
+    sale_id: uuid.UUID,
+    payload: SaleStatusChange,
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    return _change_status(sales_service.void_sale, db, sale_id, seller, payload)
+
+
+@router.post("/{sale_id}/refund", response_model=SaleRead)
+def refund_sale(
+    sale_id: uuid.UUID,
+    payload: SaleStatusChange,
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    return _change_status(sales_service.refund_sale, db, sale_id, seller, payload)
+
+
+@router.post("/{sale_id}/confirm-payment", response_model=SaleRead)
+def confirm_payment(
+    sale_id: uuid.UUID,
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    """Confirm a buyer's order was paid: it becomes a completed sale linked to the buyer."""
+    return _change_status(
+        lambda db, sale_id, seller_id, _reason: sales_service.confirm_payment(db, sale_id, seller_id),
+        db,
+        sale_id,
+        seller,
+        SaleStatusChange(),
+    )
+
+
+@router.post("/{sale_id}/reject", response_model=SaleRead)
+def reject_order(
+    sale_id: uuid.UUID,
+    payload: SaleStatusChange,
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    return _change_status(sales_service.reject_order, db, sale_id, seller, payload)
+

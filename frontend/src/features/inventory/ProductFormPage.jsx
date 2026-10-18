@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import {
   createProduct,
+  deleteProduct,
   getProduct,
   restockProduct,
   updateProduct,
@@ -12,6 +13,15 @@ import {
 import AppLayout from "../../components/AppLayout";
 import EmptyState from "../../components/EmptyState";
 import LoadingState from "../../components/LoadingState";
+import {
+  formatQuantity,
+  isMeasured,
+  parseQuantityInput,
+  sanitizeQuantityInput,
+  unitSuffix,
+  centsToPesoInput,
+  pesoInputToCents,
+} from "../../lib/format";
 import { sellerNavItems } from "../../lib/nav";
 import styles from "./inventory.module.css";
 import ProductForm from "./ProductForm";
@@ -19,7 +29,9 @@ import ProductForm from "./ProductForm";
 const EMPTY_DRAFT = {
   name: "",
   priceInput: "",
+  costInput: "",
   unitType: "piece",
+  unitLabel: "kg",
   piecesPerUnitInput: "1",
   stockInput: "0",
   lowStockThresholdInput: "10",
@@ -32,10 +44,12 @@ function draftFromProduct(product) {
   return {
     name: product.name,
     priceInput: String(Math.round(product.priceCents / 100)),
+    costInput: centsToPesoInput(product.costCents),
     unitType: product.unitType,
+    unitLabel: product.unitLabel || "kg",
     piecesPerUnitInput: String(product.piecesPerUnit),
-    stockInput: String(product.stockPieces),
-    lowStockThresholdInput: String(product.lowStockThreshold),
+    stockInput: formatQuantity(product.unitType, product.stockPieces),
+    lowStockThresholdInput: formatQuantity(product.unitType, product.lowStockThreshold),
     category: product.category || "",
     description: product.description || "",
     photoUrl: product.photoUrl,
@@ -95,14 +109,34 @@ export default function ProductFormPage() {
   const restockMutation = useMutation({
     mutationFn: (quantity) => restockProduct(productId, { quantity }),
     onSuccess: (updated) => {
-      setDraft((current) => ({ ...current, stockInput: String(updated.stockPieces) }));
+      setDraft((current) => ({ ...current, stockInput: formatQuantity(updated.unitType, updated.stockPieces) }));
       setRestockAmount("");
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["lowStockProducts"] });
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteProduct(productId),
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["product", productId] });
+      invalidateAndReturn();
+    },
+    onError: () => setError("Could not delete product. Try again."),
+  });
+
+  function handleDelete() {
+    if (!window.confirm(`Delete "${product?.name ?? "this product"}"? It will be removed from your inventory. Past sales and receipts are kept.`)) {
+      return;
+    }
+    setError("");
+    deleteMutation.mutate();
+  }
+
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  // Restock applies to the saved product, so use its unit rather than unsaved draft edits.
+  const restockUnitType = product?.unitType ?? draft.unitType;
+  const restockQuantity = parseQuantityInput(restockAmount, restockUnitType);
 
   function buildPayload() {
     const unitType = draft.unitType;
@@ -110,9 +144,12 @@ export default function ProductFormPage() {
       name: draft.name.trim(),
       description: draft.description.trim() || null,
       priceCents: Number(draft.priceInput) * 100,
+      // Blank = not recorded yet; a cost can be corrected later but not cleared.
+      costCents: pesoInputToCents(draft.costInput) ?? undefined,
       unitType,
-      piecesPerUnit: unitType === "piece" ? 1 : Number(draft.piecesPerUnitInput) || 1,
-      lowStockThreshold: Number(draft.lowStockThresholdInput) || 0,
+      unitLabel: isMeasured(unitType) ? draft.unitLabel.trim() : null,
+      piecesPerUnit: unitType === "bundle" ? Number(draft.piecesPerUnitInput) || 1 : 1,
+      lowStockThreshold: parseQuantityInput(draft.lowStockThresholdInput, unitType),
       category: draft.category.trim() || null,
     };
   }
@@ -123,11 +160,15 @@ export default function ProductFormPage() {
       setError("Name and price are required.");
       return;
     }
+    if (isMeasured(draft.unitType) && !draft.unitLabel.trim()) {
+      setError("Choose or type a unit of measure.");
+      return;
+    }
 
     if (isEditing) {
       updateMutation.mutate(buildPayload());
     } else {
-      createMutation.mutate({ ...buildPayload(), stockPieces: Number(draft.stockInput) || 0 });
+      createMutation.mutate({ ...buildPayload(), stockPieces: parseQuantityInput(draft.stockInput, draft.unitType) });
     }
   }
 
@@ -141,7 +182,7 @@ export default function ProductFormPage() {
 
   if (isEditing && isLoadingProduct) {
     return (
-      <AppLayout navItems={sellerNavItems()} title="Edit Product">
+      <AppLayout navItems={sellerNavItems()} title="Edit Product" backTo="/inventory" hideBottomNav>
         <div className={styles.page}>
           <LoadingState message="Loading product…" />
         </div>
@@ -151,7 +192,7 @@ export default function ProductFormPage() {
 
   if (isEditing && isProductError) {
     return (
-      <AppLayout navItems={sellerNavItems()} title="Edit Product">
+      <AppLayout navItems={sellerNavItems()} title="Edit Product" backTo="/inventory" hideBottomNav>
         <div className={styles.page}>
           <EmptyState message="Could not load this product." />
         </div>
@@ -160,10 +201,15 @@ export default function ProductFormPage() {
   }
 
   return (
-    <AppLayout navItems={sellerNavItems()} title={isEditing ? "Edit Product" : "Add Product"}>
+    <AppLayout
+      navItems={sellerNavItems()}
+      title={isEditing ? "Edit Product" : "Add Product"}
+      backTo="/inventory"
+      hideBottomNav
+    >
       <div className={styles.page}>
         <ProductForm
-          value={{ ...draft, disableStock: isEditing }}
+          value={{ ...draft, hideStock: isEditing }}
           onFieldChange={(field, fieldValue) => setDraft((current) => ({ ...current, [field]: fieldValue }))}
           onSubmit={handleSubmit}
           onPhotoSelect={handlePhotoSelect}
@@ -175,24 +221,45 @@ export default function ProductFormPage() {
 
         {isEditing && (
           <div className={styles["form-panel"]}>
-            <div className={styles["field-label"]}>Restock</div>
-            <div className={styles["field-row"]}>
+            <div className={styles["field-label"]}>
+              Restock · Current stock: {draft.stockInput}{" "}
+              {isMeasured(restockUnitType) ? unitSuffix(restockUnitType, product?.unitLabel) : "pieces"}
+            </div>
+            <div className={styles["inline-row"]}>
               <input
                 className={styles["text-input"]}
-                inputMode="numeric"
-                placeholder="Pieces to add"
+                inputMode={isMeasured(restockUnitType) ? "decimal" : "numeric"}
+                placeholder={
+                  isMeasured(restockUnitType)
+                    ? `${unitSuffix(restockUnitType, product?.unitLabel)} to add`
+                    : "Pieces to add"
+                }
                 value={restockAmount}
-                onChange={(e) => setRestockAmount(e.target.value.replace(/[^0-9]/g, ""))}
+                onChange={(e) => setRestockAmount(sanitizeQuantityInput(e.target.value, restockUnitType))}
               />
               <button
                 type="button"
                 className={styles["submit-button"]}
-                disabled={!Number(restockAmount) || restockMutation.isPending}
-                onClick={() => restockMutation.mutate(Number(restockAmount))}
+                disabled={!restockQuantity || restockMutation.isPending}
+                onClick={() => restockMutation.mutate(restockQuantity)}
               >
                 {restockMutation.isPending ? "Adding..." : "Add Stock"}
               </button>
             </div>
+          </div>
+        )}
+
+        {isEditing && (
+          <div className={styles["form-panel"]}>
+            <div className={styles["field-label"]}>Delete product</div>
+            <button
+              type="button"
+              className={styles["delete-button"]}
+              disabled={deleteMutation.isPending}
+              onClick={handleDelete}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete Product"}
+            </button>
           </div>
         )}
       </div>

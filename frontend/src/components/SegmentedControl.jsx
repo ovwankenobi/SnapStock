@@ -7,6 +7,7 @@ export default function SegmentedControl({ options, value, onChange }) {
         <button
           key={option.value}
           type="button"
+          disabled={option.disabled}
           className={`${styles["segmented-option"]} ${option.value === value ? styles["segmented-option-active"] : ""}`}
           onClick={() => onChange(option.value)}
         >

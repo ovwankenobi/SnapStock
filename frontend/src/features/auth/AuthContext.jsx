@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { getMe, login as loginRequest, register as registerRequest, updateMe } from "../../api/auth";
-import { translate } from "../../lib/i18n";
+import { interpolate, translate } from "../../lib/i18n";
 
 const TOKEN_KEY = "token";
 const LANGUAGE_KEY = "preferred_language";
@@ -77,6 +77,12 @@ export function AuthProvider({ children }) {
     return updated;
   }
 
+  async function refreshUser() {
+    const me = await getMe();
+    setUser(me);
+    return me;
+  }
+
   async function setLanguage(lang) {
     setLanguageState(lang);
     localStorage.setItem(LANGUAGE_KEY, lang);
@@ -100,8 +106,9 @@ export function AuthProvider({ children }) {
       register,
       logout,
       updateProfile,
+      refreshUser,
       setLanguage,
-      t: (key) => translate(language, key),
+      t: (key, params) => interpolate(translate(language, key), params),
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [user, token, isLoading, language],

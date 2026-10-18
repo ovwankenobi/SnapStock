@@ -1,17 +1,19 @@
 import uuid
-from pathlib import Path
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.config import settings
 from app.core.deps import require_seller
 from app.models.product import Product, UnitType
+from app.models.product_cost import CostSource
 from app.models.stock_movement import StockMovementReason
 from app.models.user import User
 from app.database import get_db
 from app.schemas.product import (
+    BulkRestockRequest,
     ProductCreate,
+    ProductImageSearchResponse,
+    ProductImageSearchResultItem,
     ProductListResponse,
     ProductRead,
     ProductUpdate,
@@ -20,10 +22,9 @@ from app.schemas.product import (
     RestockRequest,
 )
 from app.services import inventory as inventory_service
+from app.services import uploads as uploads_service
 
 router = APIRouter(prefix="/products", tags=["inventory"])
-
-ALLOWED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 def _get_owned_or_404(db: Session, product_id: uuid.UUID, seller: User) -> Product:
@@ -39,6 +40,23 @@ def get_low_stock_products(
     db: Session = Depends(get_db),
 ):
     return inventory_service.list_low_stock(db, seller.id)
+
+
+@router.get("/categories", response_model=list[str])
+def list_product_categories(
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    return inventory_service.list_categories(db, seller.id)
+
+
+@router.delete("/categories", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product_category(
+    name: str = Query(min_length=1),
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    inventory_service.clear_category(db, seller.id, name)
 
 
 @router.get("", response_model=ProductListResponse)
@@ -81,6 +99,7 @@ def create_product(
         description=payload.description,
         price_cents=payload.price_cents,
         unit_type=payload.unit_type,
+        unit_label=payload.unit_label,
         pieces_per_unit=payload.pieces_per_unit,
         stock_pieces=0,
         low_stock_threshold=payload.low_stock_threshold,
@@ -88,6 +107,7 @@ def create_product(
     )
     db.add(product)
     db.flush()
+    inventory_service.set_product_cost(db, product, payload.cost_cents, CostSource.MANUAL)
 
     if payload.stock_pieces > 0:
         inventory_service.apply_stock_change(
@@ -97,6 +117,50 @@ def create_product(
     db.commit()
     db.refresh(product)
     return product
+
+
+@router.post("/restock", response_model=list[ProductRead])
+def bulk_restock_products(
+    payload: BulkRestockRequest,
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    try:
+        products = inventory_service.bulk_restock(
+            db,
+            seller.id,
+            items=[(item.product_id, item.quantity, item.unit_cost_cents) for item in payload.items],
+            note=payload.note,
+        )
+    except inventory_service.ProductNotFoundError as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found") from exc
+
+    db.commit()
+    for product in products:
+        db.refresh(product)
+    return products
+
+
+@router.post("/search-by-image", response_model=ProductImageSearchResponse)
+def search_products_by_image(
+    query: str = Form(min_length=1),
+    file: UploadFile = File(...),
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    # Stage 1, mirroring the catalog's search-by-image: the photo is validated but
+    # not analyzed, and matching is a keyword search over the seller's own products.
+    try:
+        uploads_service.validate_image(file)
+    except uploads_service.InvalidImageError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    products, _ = inventory_service.list_products(db, seller_id=seller.id, search=query, page=1, page_size=20)
+    return ProductImageSearchResponse(
+        query=query,
+        results=[ProductImageSearchResultItem(product=p, confidence=None) for p in products],
+    )
 
 
 @router.get("/{product_id}", response_model=ProductRead)
@@ -116,8 +180,27 @@ def update_product(
     db: Session = Depends(get_db),
 ):
     product = _get_owned_or_404(db, product_id, seller)
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    # Cost goes through the history log; clearing it (null) is not supported, a cost only gets corrected.
+    cost_cents = changes.pop("cost_cents", None)
+    for field, value in changes.items():
         setattr(product, field, value)
+    inventory_service.set_product_cost(db, product, cost_cents, CostSource.MANUAL)
+
+    if product.unit_type != UnitType.BUNDLE and product.pieces_per_unit != 1:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="pieces_per_unit only applies to bundle products",
+        )
+    if product.unit_type == UnitType.MEASURE and not product.unit_label:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="unit_label is required for measure products",
+        )
+    if product.unit_type != UnitType.MEASURE:
+        product.unit_label = None
     db.commit()
     db.refresh(product)
     return product
@@ -144,7 +227,11 @@ def quick_sell_product(
     product = _get_owned_or_404(db, product_id, seller)
     try:
         updated_product, sale = inventory_service.quick_sell(
-            db, product, quantity=payload.quantity, payment_method=payload.payment_method
+            db,
+            product,
+            quantity=payload.quantity,
+            payment_method=payload.payment_method,
+            unit_price_cents=payload.unit_price_cents,
         )
     except inventory_service.InsufficientStockError as exc:
         db.rollback()
@@ -173,6 +260,7 @@ def restock_product(
         reason=StockMovementReason.RESTOCK,
         note=payload.note,
     )
+    inventory_service.set_product_cost(db, updated_product, payload.unit_cost_cents, CostSource.RESTOCK)
     db.commit()
     db.refresh(updated_product)
     return updated_product
@@ -187,23 +275,11 @@ def upload_product_photo(
 ):
     product = _get_owned_or_404(db, product_id, seller)
 
-    if file.content_type not in ALLOWED_PHOTO_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Photo must be a JPEG, PNG, or WebP image",
-        )
+    try:
+        product.photo_url = uploads_service.save_image(file, prefix=str(product.id))
+    except uploads_service.InvalidImageError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-    upload_dir = Path(settings.UPLOAD_DIR)
-    upload_dir.mkdir(parents=True, exist_ok=True)
-
-    extension = Path(file.filename or "").suffix.lower() or ".jpg"
-    filename = f"{product.id}_{uuid.uuid4().hex[:8]}{extension}"
-    destination = upload_dir / filename
-
-    with destination.open("wb") as buffer:
-        buffer.write(file.file.read())
-
-    product.photo_url = f"/uploads/{filename}"
     db.commit()
     db.refresh(product)
     return product

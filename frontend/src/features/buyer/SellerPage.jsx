@@ -5,8 +5,10 @@ import { getCatalogSeller } from "../../api/catalog";
 import AppLayout from "../../components/AppLayout";
 import Avatar from "../../components/Avatar";
 import EmptyState from "../../components/EmptyState";
-import IconButton from "../../components/IconButton";
 import { buyerNavItems } from "../../lib/nav";
+import { useAuth } from "../auth/AuthContext";
+import PayoutAccountCard from "../payouts/PayoutAccountCard";
+import payoutStyles from "../payouts/payouts.module.css";
 import styles from "./buyer.module.css";
 import { toFeedListing } from "./buyerFormat";
 import ProductFeedCard from "./ProductFeedCard";
@@ -16,6 +18,7 @@ const BUSINESS_TYPE_LABELS = { wholesale: "Wholesale", retail: "Retail", both: "
 export default function SellerPage() {
   const { sellerId } = useParams();
   const navigate = useNavigate();
+  const { t } = useAuth();
 
   const { data: seller, isLoading, isError } = useQuery({
     queryKey: ["catalogSeller", sellerId],
@@ -26,7 +29,7 @@ export default function SellerPage() {
     <AppLayout
       navItems={buyerNavItems()}
       title="Seller"
-      headerAction={<IconButton icon="back" label="Back" onClick={() => navigate(-1)} />}
+      backTo={-1}
     >
       <div className={styles.page}>
         {isLoading && <p className={styles.hint}>Loading seller...</p>}
@@ -47,6 +50,17 @@ export default function SellerPage() {
                 )}
               </div>
             </div>
+
+            {seller.payoutAccounts?.length > 0 && (
+              <section className={`${payoutStyles.section} ${styles["seller-pay-via"]}`}>
+                <div className={payoutStyles["field-label"]}>{t("payouts.payVia")}</div>
+                <div className={styles["seller-pay-via-grid"]}>
+                  {seller.payoutAccounts.map((account) => (
+                    <PayoutAccountCard key={account.id} account={account} stacked />
+                  ))}
+                </div>
+              </section>
+            )}
 
             {seller.products.length === 0 ? (
               <EmptyState message="This seller has no active listings right now." />

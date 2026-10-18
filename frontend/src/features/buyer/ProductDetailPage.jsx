@@ -7,7 +7,7 @@ import { createConversation } from "../../api/messages";
 import AppLayout from "../../components/AppLayout";
 import Badge from "../../components/Badge";
 import EmptyState from "../../components/EmptyState";
-import IconButton from "../../components/IconButton";
+import ActionBar from "../../components/ActionBar";
 import { centsToPeso, colorForKey, mediaUrl, unitSuffix } from "../../lib/format";
 import { buyerNavItems } from "../../lib/nav";
 import styles from "./buyer.module.css";
@@ -30,10 +30,10 @@ export default function ProductDetailPage() {
   const buyMutation = useMutation({
     mutationFn: (payload) => buyProduct(productId, payload),
     onSuccess: (sale) => {
-      navigate(`/r/${sale.receiptCode}`);
+      navigate(`/buyer/orders/${sale.id}`);
     },
     onError: (err) => {
-      setBuyError(err.response?.data?.detail || "Could not complete the purchase.");
+      setBuyError(err.response?.data?.detail || "Could not place the order.");
     },
   });
 
@@ -48,7 +48,8 @@ export default function ProductDetailPage() {
     <AppLayout
       navItems={buyerNavItems()}
       title="Product"
-      headerAction={<IconButton icon="back" label="Back" onClick={() => navigate(-1)} />}
+      backTo={-1}
+      hideBottomNav
     >
       {isLoading && <p className={styles.hint}>Loading product...</p>}
       {isError && <EmptyState message="Could not load this product." />}
@@ -70,7 +71,7 @@ export default function ProductDetailPage() {
             <div>
               <div className={styles["detail-name"]}>{product.name}</div>
               <div className={styles["detail-price"]}>
-                {centsToPeso(product.priceCents)}/{unitSuffix(product.unitType)}
+                {centsToPeso(product.priceCents)}/{unitSuffix(product.unitType, product.unitLabel)}
               </div>
             </div>
             <Badge tone={badge.tone}>{badge.label}</Badge>
@@ -89,7 +90,7 @@ export default function ProductDetailPage() {
             </div>
           </button>
 
-          <div className={styles["detail-actions"]}>
+          <ActionBar>
             <button
               type="button"
               className={styles["detail-action-secondary"]}
@@ -109,7 +110,7 @@ export default function ProductDetailPage() {
             >
               {product.stockStatus === "out" ? "Out of Stock" : "Buy"}
             </button>
-          </div>
+          </ActionBar>
         </div>
       )}
 

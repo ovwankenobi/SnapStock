@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import AppLayout from "../../components/AppLayout";
+import Icon from "../../components/Icon";
+import { useTheme } from "../../hooks/useTheme";
 import { buyerNavItems, sellerNavItems } from "../../lib/nav";
+import PayoutAccountsSection from "../payouts/PayoutAccountsSection";
 import { useAuth } from "./AuthContext";
 import styles from "./auth.module.css";
 import LanguageToggle from "./LanguageToggle";
@@ -24,8 +28,15 @@ function draftFromUser(user) {
 }
 
 export default function ProfilePage() {
-  const { user, updateProfile, t } = useAuth();
+  const { user, updateProfile, logout, t } = useAuth();
+  const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const isSeller = user.role === "seller";
+
+  function handleLogout() {
+    logout();
+    navigate("/login", { replace: true });
+  }
 
   const [draft, setDraft] = useState(() => draftFromUser(user));
   const [status, setStatus] = useState("idle");
@@ -67,7 +78,7 @@ export default function ProfilePage() {
           <LanguageToggle />
         </div>
 
-        <form className={styles["auth-form"]} onSubmit={handleSubmit}>
+        <form id="profile-form" className={styles["auth-form"]} onSubmit={handleSubmit}>
           <div>
             <label className={styles["field-label"]} htmlFor="profile-email">
               Email
@@ -152,16 +163,41 @@ export default function ProfilePage() {
             </>
           )}
 
-          {error && (
-            <div className={styles["form-error"]} role="alert">
-              {error}
-            </div>
-          )}
-
-          <button type="submit" className={styles["submit-button"]} disabled={status === "saving"}>
-            {status === "saving" ? "Saving..." : status === "saved" ? "Saved" : "Save Changes"}
-          </button>
         </form>
+
+        {/* Outside the profile form: the payout section has its own form, and forms can't nest. */}
+        {isSeller && <PayoutAccountsSection />}
+
+        {error && (
+          <div className={styles["form-error"]} role="alert">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          form="profile-form"
+          className={styles["submit-button"]}
+          disabled={status === "saving"}
+        >
+          {status === "saving" ? "Saving..." : status === "saved" ? "Saved" : "Save Changes"}
+        </button>
+
+        <div className={styles["profile-account"]}>
+          <div className={styles["field-label"]}>{t("nav.account")}</div>
+          <button type="button" className={styles["profile-account-row"]} onClick={toggleTheme}>
+            {t("nav.darkModeLabel")}
+            <Icon name={theme === "dark" ? "sun" : "moon"} size={20} />
+          </button>
+          <button
+            type="button"
+            className={`${styles["profile-account-row"]} ${styles["profile-logout"]}`}
+            onClick={handleLogout}
+          >
+            {t("nav.logout")}
+            <Icon name="logout" size={20} />
+          </button>
+        </div>
       </div>
     </AppLayout>
   );

@@ -1,6 +1,6 @@
 import os
 
-TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/pos_system_test"
+TEST_DATABASE_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/pos_system_test"
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 
 import psycopg2  # noqa: E402

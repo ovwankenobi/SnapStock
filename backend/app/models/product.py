@@ -12,7 +12,9 @@ from app.models.mixins import CreatedAtMixin, UUIDPkMixin, UpdatedAtMixin
 class UnitType(str, enum.Enum):
     PIECE = "piece"
     BUNDLE = "bundle"
-    GRAMS = "grams"
+    # Sold by a seller-configured measurement (kg, yd, m, ...). Stock, thresholds and
+    # quantities are stored in thousandths of that unit; price_cents is per whole unit.
+    MEASURE = "measure"
 
 
 class Product(UUIDPkMixin, CreatedAtMixin, UpdatedAtMixin, Base):
@@ -25,7 +27,10 @@ class Product(UUIDPkMixin, CreatedAtMixin, UpdatedAtMixin, Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     photo_url: Mapped[str | None] = mapped_column(String, nullable=True)
     price_cents: Mapped[int] = mapped_column(Integer, nullable=False)
+    # What one selling unit costs the seller (same unit as price_cents). Null = not recorded yet.
+    cost_cents: Mapped[int | None] = mapped_column(Integer, nullable=True)
     unit_type: Mapped[UnitType] = mapped_column(Enum(UnitType, name="unit_type"), nullable=False)
+    unit_label: Mapped[str | None] = mapped_column(String(16), nullable=True)
     pieces_per_unit: Mapped[int] = mapped_column(
         Integer, default=1, server_default="1", nullable=False
     )

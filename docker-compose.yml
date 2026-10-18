@@ -1,0 +1,23 @@
+# Local development database only. Production uses Amazon RDS (PostgreSQL 16)
+# via DATABASE_URL — nothing here is deployed.
+services:
+  db:
+    image: postgres:16
+    container_name: snapstock-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-pos_system}
+    ports:
+      - "5432:5432"
+    volumes:
+      - snapstock-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  snapstock-pgdata:

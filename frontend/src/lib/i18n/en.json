@@ -1,16 +1,23 @@
 {
   "common": {
-    "appName": "SnapStock",
-    "tagline": "Point of sale for your sari-sari store or market stall"
+    "appName": "SnapStock"
   },
   "roles": {
-    "seller": { "title": "Seller", "description": "Manage inventory & sales" },
-    "buyer": { "title": "Buyer", "description": "Shop from local sellers" }
+    "seller": {
+      "title": "Seller",
+      "description": "Manage inventory & sales"
+    },
+    "buyer": {
+      "title": "Buyer",
+      "description": "Shop from local sellers"
+    }
   },
   "auth": {
     "login": {
       "email": "Email",
       "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
       "submit": "Log In",
       "submitting": "Logging in...",
       "noAccount": "New here?",
@@ -48,6 +55,356 @@
   "nav": {
     "logout": "Log out",
     "darkMode": "Switch to dark mode",
-    "lightMode": "Switch to light mode"
+    "lightMode": "Switch to light mode",
+    "home": "Home",
+    "inventory": "Inventory",
+    "newSale": "New Sale",
+    "sell": "Sell",
+    "salesHistory": "Sales History",
+    "history": "History",
+    "messages": "Messages",
+    "discover": "Discover",
+    "receipts": "Receipts",
+    "profile": "Profile",
+    "back": "Back",
+    "appearance": "Appearance",
+    "darkModeLabel": "Dark mode",
+    "account": "Account",
+    "analytics": "Analytics",
+    "transactions": "Transactions"
+  },
+  "payouts": {
+    "title": "Payout accounts",
+    "subtitle": "How buyers pay you. Add your GCash, Maya or bank account with its QR code.",
+    "methods": {
+      "gcash": "GCash",
+      "maya": "Maya",
+      "bank_transfer": "Bank",
+      "other": "Other"
+    },
+    "method": "Payment method",
+    "bankName": "Bank name",
+    "providerName": "Provider name (e.g. GoTyme, ShopeePay)",
+    "accountName": "Account name",
+    "accountNumber": "Account / mobile number",
+    "qrCode": "QR code",
+    "qrAdd": "Tap to add your QR code",
+    "qrChange": "Tap to change QR code",
+    "noQr": "No QR",
+    "default": "Default",
+    "makeDefault": "Make default",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete this payout account?",
+    "add": "Add payout account",
+    "save": "Save account",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "saveError": "Could not save the payout account. Please try again.",
+    "empty": "No payout accounts yet.",
+    "setupTitle": "How should buyers pay you?",
+    "setupSubtitle": "Add your GCash, Maya or bank QR so buyers can pay you. You can also do this later in Profile.",
+    "saveContinue": "Save & continue",
+    "skip": "Skip for now",
+    "nudge": "Add your GCash, Maya or bank QR so buyers can pay you digitally.",
+    "payVia": "Pay via",
+    "scanHint": "Scan the QR or send to the account below, then tap Buy Now.",
+    "cash": "Cash",
+    "showToBuyerHint": "Let the buyer scan this QR, then complete the sale once paid.",
+    "paymentTitle": "How did the buyer pay?",
+    "total": "Total",
+    "confirmPayment": "Confirm & Complete Sale",
+    "completing": "Completing sale...",
+    "back": "Back to sale"
+  },
+  "dateRange": {
+    "today": "Today",
+    "week": "7 Days",
+    "month": "30 Days",
+    "custom": "Custom",
+    "from": "From",
+    "to": "To",
+    "invalid": "Pick a start date on or before the end date.",
+    "chooseValid": "Choose a valid date range."
+  },
+  "checkout": {
+    "unitPrice": "Unit price",
+    "editPrice": "Edit price for this sale",
+    "wasPrice": "was {price}",
+    "resetPrice": "Reset",
+    "belowCost": "Below your cost",
+    "discount": "Discount",
+    "discountTooBig": "The discount is more than the subtotal.",
+    "subtotal": "Subtotal",
+    "total": "Total",
+    "addToCart": "Add to Cart",
+    "updateCart": "Update Cart",
+    "removeFromCart": "Remove from Cart",
+    "addDiscount": "Add",
+    "listPrice": "list {price}",
+    "allCategories": "All",
+    "uncategorized": "Other",
+    "walkIn": "Walk-in Sale",
+    "buyerAccount": "Buyer Account"
+  },
+  "numpad": {
+    "clear": "C",
+    "backspace": "Backspace",
+    "decimal": "Decimal point",
+    "done": "Done"
+  },
+  "inventory": {
+    "costPrice": "Cost price (₱)",
+    "optional": "Optional",
+    "costHint": "What one unit costs you. Used for profit and margin in Analytics.",
+    "marginHint": "Margin at this price: {pct}%",
+    "unitCost": "Cost per {unit}",
+    "unitCostFor": "Cost per unit for {name}"
+  },
+  "saleStatus": {
+    "reason": "Reason (optional)",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "error": "Could not update this sale.",
+    "voidedNotice": "This sale was voided",
+    "refundedNotice": "This sale was refunded",
+    "pending_paymentNotice": "Awaiting payment confirmation",
+    "cancelledNotice": "This order was cancelled",
+    "reject": {
+      "action": "Reject order",
+      "title": "Reject this order?",
+      "body": "The buyer's {amount} order is cancelled and its items go back into stock.",
+      "reasonPlaceholder": "e.g. payment not received",
+      "confirm": "Reject order"
+    },
+    "void": {
+      "action": "Void sale",
+      "title": "Void this sale?",
+      "body": "Use this for a sale entered by mistake. The {amount} sale is removed from your reports and its items go back into stock.",
+      "reasonPlaceholder": "e.g. wrong item, rang up twice",
+      "confirm": "Void sale"
+    },
+    "delete": {
+      "label": "Delete transaction",
+      "title": "Delete this transaction?",
+      "body": "The {amount} sale is voided: it's removed from your reports and its items go back into stock. It stays in your list marked Voided.",
+      "reasonPlaceholder": "e.g. test sale, duplicate",
+      "confirm": "Delete transaction"
+    },
+    "refund": {
+      "action": "Refund sale",
+      "title": "Refund this sale?",
+      "body": "Use this when the buyer returns the items. {amount} is recorded as a refund and the items go back into stock.",
+      "reasonPlaceholder": "e.g. damaged item",
+      "confirm": "Refund sale"
+    }
+  },
+  "orders": {
+    "pendingTitle": "Orders to confirm",
+    "nudgeOne": "1 order is waiting for payment confirmation",
+    "nudgeMany": "{count} orders are waiting for payment confirmation",
+    "empty": "No orders waiting for confirmation.",
+    "loading": "Loading orders…",
+    "confirmPayment": "Confirm payment",
+    "confirming": "Confirming…",
+    "confirmError": "Could not confirm this payment.",
+    "proofTitle": "Payment screenshot",
+    "noProof": "No payment screenshot yet — you can confirm once the buyer uploads one.",
+    "sellerCashHint": "Cash order — confirm once the buyer pays you.",
+    "viewFull": "Tap to view full size",
+    "orderTitle": "Order",
+    "loadError": "Could not load this order.",
+    "awaitingTitle": "Order placed — awaiting payment",
+    "payTo": "Pay the seller using one of these",
+    "noPayoutAccounts": "This seller hasn't added payment accounts yet — message them for payment details.",
+    "uploadProof": "Upload payment screenshot",
+    "replaceProof": "Replace screenshot",
+    "uploading": "Uploading…",
+    "uploadError": "Could not upload the screenshot.",
+    "proofSent": "Screenshot sent — waiting for the seller to confirm.",
+    "buyerCashHint": "Pay the seller at pickup — they'll confirm your order.",
+    "cancelOrder": "Cancel order",
+    "cancelConfirm": "Tap again to cancel this order",
+    "cancelError": "Could not cancel this order.",
+    "completedTitle": "Payment confirmed — thank you!",
+    "cancelledTitle": "This order was cancelled",
+    "viewReceipt": "View receipt",
+    "placeOrder": "Place order",
+    "placingOrder": "Placing order…",
+    "approve": "Approve order",
+    "allPending": "All orders to approve",
+    "buyerAccountHint": "Online orders from buyers waiting for your approval — check the payment, then approve or reject."
+  },
+  "analytics": {
+    "tabs": {
+      "sales": "Sales",
+      "profit": "Profit",
+      "stock": "Stock",
+      "forecast": "Forecast"
+    },
+    "loading": "Loading analytics…",
+    "loadError": "Could not load analytics.",
+    "vsPrevious": "vs previous",
+    "noSalesInRange": "No sales in this range yet.",
+    "noProducts": "No active products yet.",
+    "noSalesYet": "No sales yet",
+    "netSales": "Net sales",
+    "transactions": "Transactions",
+    "unitsSold": "Units sold",
+    "avgTransaction": "Avg. sale",
+    "trendLast7": "Net sales · last 7 days",
+    "trendBy": {
+      "day": "Net sales per day",
+      "week": "Net sales per week",
+      "month": "Net sales per month"
+    },
+    "topProducts": "Top 5 products",
+    "byRevenue": "Revenue",
+    "byQuantity": "Quantity",
+    "byWeekday": "Average sales by weekday",
+    "byHour": "Average sales by hour",
+    "patternHint": "Average of the last {weeks} weeks",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
+    "grossProfit": "Gross profit",
+    "grossMargin": "Gross margin",
+    "cogs": "Cost of goods",
+    "costCoverage": "Sales with a cost",
+    "partialCost": "Only {pct} of these sales have a cost price, so profit covers those sales only.",
+    "noCost": "Add cost prices to your products to see profit and margin.",
+    "addCosts": "Add costs",
+    "noCostShort": "No cost",
+    "breakdown": "From sales to profit",
+    "breakdownHint": "Gross sales at your list prices, minus price changes, discounts and refunds. Voided sales are left out.",
+    "grossSales": "Gross sales (list price)",
+    "priceAdjustments": "Price changes at checkout",
+    "discounts": "Discounts",
+    "refunds": "Refunds",
+    "cogsCosted": "Cost of goods sold",
+    "topByProfit": "Top 5 by gross profit",
+    "topByProfitHint": "Per product, before sale-wide discounts.",
+    "revenueLabel": "{amount} sales",
+    "marginLabel": "{pct} margin",
+    "needAttention": "Need restocking",
+    "stockValueTotal": "Stock value at cost",
+    "inStock": "{amount} in stock",
+    "daysLeft": "~{days} days left",
+    "turnover": "turnover {value}×/30d",
+    "stockValue": "worth {amount}",
+    "suggestedReorder": "Suggested reorder: {amount}",
+    "restock": "Restock",
+    "status": {
+      "out_of_stock": "Out of stock",
+      "stockout_risk": "Running out",
+      "low": "Low stock",
+      "slow_moving": "Slow moving",
+      "overstocked": "Overstocked",
+      "healthy": "Healthy"
+    },
+    "statusHint": {
+      "out_of_stock": "Nothing left to sell.",
+      "stockout_risk": "At the current pace these run out within 7 days.",
+      "low": "At or below your low-stock alert level.",
+      "slow_moving": "No sales in the last 14 days but still in stock.",
+      "overstocked": "More than 60 days of stock at the current pace.",
+      "healthy": "Stock and sales are in balance."
+    },
+    "forecastAccuracy": "Forecast accuracy",
+    "forecastAccuracyHint": "Last week's forecast vs actual",
+    "runOutWithinWeek": "May run out this week",
+    "expectedDemand": "Expected demand",
+    "next7": "7 days",
+    "next14": "14 days",
+    "forecastMethod": "Based on the last 7 and 30 days of sales. An estimate, not a guarantee.",
+    "forecastMethodWeekday": "Based on the last 7 and 30 days of sales, adjusted for your busy and quiet weekdays. An estimate, not a guarantee.",
+    "fallbackNote": "rough estimate (little history)",
+    "reorderSoon": "Reorder soon",
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
+    "loadingTransactions": "Loading transactions…",
+    "loadTransactionsError": "Could not load transactions.",
+    "showingLatest": "Showing the latest {shown} of {total} transactions."
+  },
+  "insights": {
+    "heading": "Insights",
+    "urgent": "{count} urgent",
+    "showAll": "Show all {count}",
+    "showFewer": "Show fewer",
+    "severity": {
+      "high": "Urgent",
+      "medium": "Check",
+      "low": "FYI"
+    },
+    "actions": {
+      "check_stock_for_demand": "Check you have enough stock if this continues",
+      "review_prices_and_stock": "Check stock, prices and what changed",
+      "review_prices": "Review your prices and costs",
+      "raise_price": "Raise the price or check the cost",
+      "add_cost": "Add its cost price",
+      "reorder": "Restock now",
+      "promote_or_pause_restock": "Hold off restocking or run a promo",
+      "stock_up": "Stock up before it runs out"
+    },
+    "sales_spike": {
+      "title": "Sales up {pct} yesterday",
+      "body": "{actualCents} vs a usual {usualCents} on a {weekday}."
+    },
+    "sales_drop": {
+      "title": "Sales down {pct} yesterday",
+      "body": "{actualCents} vs a usual {usualCents} on a {weekday}."
+    },
+    "stockout_risk": {
+      "title": "{product} runs out in ~{days} days",
+      "body": "At the current pace. Suggested reorder: {reorder}."
+    },
+    "low_margin": {
+      "title": "Margin is only {marginPct}%",
+      "body": "Your gross margin over the last 30 days is under {thresholdPct}%."
+    },
+    "below_cost": {
+      "title": "{product} is priced at or below cost",
+      "body": "Price {priceCents}, cost {costCents}."
+    },
+    "missing_cost": {
+      "title": "{product} has no cost price",
+      "body": "It made {revenueSharePct}% of your sales ({revenueCents}) in 30 days, so your profit figures leave it out."
+    },
+    "emerging_bestseller": {
+      "title": "{product} is selling faster",
+      "body": "{unitsLast7Days} sold in the last 7 days vs about {weeklyAvgBefore} a week before."
+    },
+    "overstock": {
+      "title": "{product} has ~{days} days of stock",
+      "body": "{stockValueCents} of stock is sitting at the current pace."
+    }
+  },
+  "buyerTransactions": {
+    "title": "My Transactions",
+    "loading": "Loading transactions…",
+    "loadError": "Could not load your transactions.",
+    "empty": "No purchases yet — your transactions appear here after you buy something."
+  },
+  "messages": {
+    "searchPlaceholder": "Search by name",
+    "noMatches": "No conversations match \"{query}\".",
+    "orderCard": {
+      "label": "Order",
+      "bought": "{name} bought {items}",
+      "proofQuestion": "Here is the proof of payment — approve or not?",
+      "cashQuestion": "Will pay in cash — approve or not?",
+      "review": "Review & approve",
+      "view": "View order",
+      "approved": "Approved"
+    }
   }
 }

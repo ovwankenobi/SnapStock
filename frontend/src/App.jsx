@@ -9,6 +9,7 @@ import ProtectedRoute from "./features/auth/ProtectedRoute";
 import RegisterPage from "./features/auth/RegisterPage";
 import BuyerHomePage from "./features/buyer/BuyerHomePage";
 import MyReceiptsPage from "./features/buyer/MyReceiptsPage";
+import OrderPage from "./features/buyer/OrderPage";
 import ProductDetailPage from "./features/buyer/ProductDetailPage";
 import SellerPage from "./features/buyer/SellerPage";
 import SellerDashboardPage from "./features/dashboard/SellerDashboardPage";
@@ -16,10 +17,11 @@ import InventoryPage from "./features/inventory/InventoryPage";
 import ProductFormPage from "./features/inventory/ProductFormPage";
 import ChatPage from "./features/messages/ChatPage";
 import ConversationListPage from "./features/messages/ConversationListPage";
-import AnalyticsPage from "./features/sales/AnalyticsPage";
+import AnalyticsPage from "./features/analytics/AnalyticsPage";
 import CheckoutPage from "./features/sales/CheckoutPage";
 import PublicReceiptPage from "./features/sales/PublicReceiptPage";
 import ReceiptPage from "./features/sales/ReceiptPage";
+import TransactionsPage from "./features/sales/TransactionsPage";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +87,18 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* Online orders to approve now live under New Sale → Buyer Account. */}
+      <Route path="/sales/orders" element={<Navigate to="/sales?path=account" replace />} />
+      <Route
+        path="/transactions"
+        element={
+          <ProtectedRoute role="seller">
+            <TransactionsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/sales/history" element={<Navigate to="/transactions" replace />}
+      />
       <Route
         path="/analytics"
         element={
@@ -138,6 +152,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute role="buyer">
             <MyReceiptsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/buyer/orders/:saleId"
+        element={
+          <ProtectedRoute role="buyer">
+            <OrderPage />
           </ProtectedRoute>
         }
       />

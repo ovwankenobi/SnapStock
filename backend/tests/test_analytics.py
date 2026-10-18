@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 from app.database import SessionLocal
-from app.models import PaymentMethod, Sale, SaleItem, SaleType, UnitType
+from app.models import PaymentMethod, Sale, SaleItem, SaleStatus, SaleType, UnitType
 
 
 def _register_seller(client, **overrides):
@@ -40,15 +40,30 @@ def _create_product(client, token, **overrides):
     return response.json()
 
 
-def _insert_backdated_sale_item(seller_id, product_id, pieces, days_ago, price_cents=100):
+def _insert_backdated_sale_item(
+    seller_id,
+    product_id,
+    pieces,
+    days_ago=0,
+    price_cents=100,
+    created_at=None,
+    status=SaleStatus.COMPLETED,
+    cost_cents=None,
+    list_price_cents=None,
+    discount_cents=0,
+):
     db = SessionLocal()
     try:
-        created_at = datetime.now(timezone.utc) - timedelta(days=days_ago)
+        created_at = created_at or datetime.now(timezone.utc) - timedelta(days=days_ago)
+        line_total = price_cents * pieces
         sale = Sale(
             seller_id=uuid.UUID(seller_id),
             buyer_id=None,
             sale_type=SaleType.WALK_IN,
-            total_cents=price_cents * pieces,
+            subtotal_cents=line_total,
+            discount_cents=discount_cents,
+            total_cents=line_total - discount_cents,
+            status=status,
             payment_method=PaymentMethod.CASH,
             receipt_code=f"TST{uuid.uuid4().hex[:8].upper()}",
             created_at=created_at,
@@ -60,11 +75,14 @@ def _insert_backdated_sale_item(seller_id, product_id, pieces, days_ago, price_c
                 sale_id=sale.id,
                 product_id=uuid.UUID(product_id),
                 product_name_snapshot="Backdated Product",
+                list_price_cents_snapshot=list_price_cents if list_price_cents is not None else price_cents,
                 unit_price_cents_snapshot=price_cents,
+                unit_cost_cents_snapshot=cost_cents,
+                cost_total_cents=cost_cents * pieces if cost_cents is not None else None,
                 quantity=pieces,
                 unit_type_snapshot=UnitType.PIECE,
                 pieces_deducted=pieces,
-                line_total_cents=price_cents * pieces,
+                line_total_cents=line_total,
             )
         )
         db.commit()
@@ -98,7 +116,7 @@ def test_forecast_returns_null_for_brand_new_product(client):
     product = _create_product(client, token)
 
     forecast = client.get("/api/v1/analytics/forecast", headers=_auth(token)).json()
-    entry = next(f for f in forecast if f["productId"] == product["id"])
+    entry = next(f for f in forecast["items"] if f["productId"] == product["id"])
 
     assert entry["avgDailyPiecesWeek"] is None
     assert entry["avgDailyPiecesMonth"] is None
@@ -115,7 +133,7 @@ def test_forecast_flags_at_risk_product_with_sufficient_history(client):
         _insert_backdated_sale_item(me["id"], product["id"], pieces=5, days_ago=days_ago)
 
     forecast = client.get("/api/v1/analytics/forecast", headers=_auth(token)).json()
-    entry = next(f for f in forecast if f["productId"] == product["id"])
+    entry = next(f for f in forecast["items"] if f["productId"] == product["id"])
 
     assert entry["avgDailyPiecesWeek"] == 5.0
     assert entry["daysOfStockRemaining"] == 4.0
@@ -131,7 +149,7 @@ def test_forecast_ignores_history_older_than_thirty_days(client):
         _insert_backdated_sale_item(me["id"], product["id"], pieces=3, days_ago=days_ago + 40)
 
     forecast = client.get("/api/v1/analytics/forecast", headers=_auth(token)).json()
-    entry = next(f for f in forecast if f["productId"] == product["id"])
+    entry = next(f for f in forecast["items"] if f["productId"] == product["id"])
 
     assert entry["avgDailyPiecesWeek"] is None
 

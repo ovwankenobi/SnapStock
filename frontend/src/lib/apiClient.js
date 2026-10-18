@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const API_ORIGIN = new URL(import.meta.env.VITE_API_URL).origin;
+export const API_ORIGIN = new URL(import.meta.env.VITE_API_URL, window.location.origin).origin;
 
 const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_URL,

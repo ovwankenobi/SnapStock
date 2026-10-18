@@ -1,35 +1,41 @@
 """Seed a fresh database with one seller, one buyer, and five products.
 
-Pass --sales to also backfill historical sales across the last 60 days, useful
-for exercising analytics/dashboard performance and the demand forecast.
+Products get cost prices. Pass --sales to also backfill historical sales across
+the last 60 days (weekend-heavy, with a few haggled prices, discounts, a void and
+a refund), useful for exercising every analytics tab and the demand forecast.
 """
 
 import argparse
 import random
 import string
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, time, timedelta, timezone
 
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
+from app.core.business_time import BUSINESS_TZ, local_today
 from app.database import SessionLocal
 from app.models import (
     BusinessType,
+    CostSource,
     PaymentMethod,
     Product,
     Sale,
-    SaleItem,
+    SaleStatus,
     SaleType,
     SellerProfile,
     UnitType,
     User,
     UserRole,
 )
+from app.services.inventory import build_sale_item, set_product_cost
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Excludes 0/O and 1/I to match the real receipt code generator's alphabet.
 RECEIPT_ALPHABET = "".join(c for c in string.ascii_uppercase + string.digits if c not in "0O1I")
+# Relative traffic Monday..Sunday: market days are busiest on weekends.
+WEEKDAY_WEIGHTS = [0.8, 0.8, 0.9, 0.9, 1.1, 1.6, 1.5]
 
 
 def seed() -> tuple[User, User, list[Product]]:
@@ -110,9 +116,10 @@ def seed() -> tuple[User, User, list[Product]]:
             Product(
                 seller_id=seller.id,
                 name="Bigas (Rice)",
-                description="Sold by the gram.",
-                price_cents=6,
-                unit_type=UnitType.GRAMS,
+                description="Sold by the kilo.",
+                price_cents=6000,
+                unit_type=UnitType.MEASURE,
+                unit_label="kg",
                 pieces_per_unit=1,
                 stock_pieces=50000,
                 low_stock_threshold=5000,
@@ -120,6 +127,9 @@ def seed() -> tuple[User, User, list[Product]]:
             ),
         ]
         db.add_all(products)
+        db.flush()
+        for product in products:
+            set_product_cost(db, product, round(product.price_cents * random.uniform(0.6, 0.8)), CostSource.MANUAL)
 
         db.commit()
         for product in products:
@@ -141,7 +151,7 @@ def _random_receipt_code(existing: set[str]) -> str:
 
 
 def _sale_quantity(product: Product) -> int:
-    if product.unit_type == UnitType.GRAMS:
+    if product.unit_type == UnitType.MEASURE:
         return random.choice([250, 500, 1000, 1500])
     return random.randint(1, 5)
 
@@ -158,45 +168,57 @@ def seed_sales_history(
     existing_codes = {code for (code,) in db.query(Sale.receipt_code).all()}
     payment_methods = [PaymentMethod.CASH, PaymentMethod.GCASH, PaymentMethod.MAYA, PaymentMethod.OTHER]
     now = datetime.now(timezone.utc)
+    today = local_today()
+    window = [today - timedelta(days=offset) for offset in range(days)]
+    weights = [WEEKDAY_WEIGHTS[day.weekday()] for day in window]
 
+    sales = []
     for _ in range(count):
-        created_at = now - timedelta(days=random.uniform(0, days), hours=random.uniform(0, 10))
+        # A local market-hours moment (6am-7pm Manila), not a UTC one.
+        day = random.choices(window, weights=weights, k=1)[0]
+        local = datetime.combine(day, time(random.randint(6, 18), random.randint(0, 59)), tzinfo=BUSINESS_TZ)
+        created_at = min(local.astimezone(timezone.utc), now)
         is_itemized = random.random() < 0.3
         chosen = random.sample(products, k=random.randint(1, min(3, len(products))))
 
-        line_items = []
-        total_cents = 0
-        for product in chosen:
-            quantity = _sale_quantity(product)
-            line_total = quantity * product.price_cents
-            total_cents += line_total
-            line_items.append((product, quantity, line_total))
+        items = [
+            build_sale_item(
+                None,
+                product,
+                _sale_quantity(product),
+                round(product.price_cents * random.uniform(0.85, 0.95)) if random.random() < 0.08 else None,
+            )
+            for product in chosen
+        ]
+        subtotal_cents = sum(item.line_total_cents for item in items)
+        discount_cents = round(subtotal_cents * 0.05, -2) if is_itemized and random.random() < 0.06 else 0
 
         sale = Sale(
             seller_id=seller.id,
             buyer_id=buyer.id if is_itemized else None,
             sale_type=SaleType.ITEMIZED if is_itemized else SaleType.WALK_IN,
-            total_cents=total_cents,
+            subtotal_cents=subtotal_cents,
+            discount_cents=discount_cents,
+            total_cents=subtotal_cents - discount_cents,
             payment_method=random.choice(payment_methods),
             receipt_code=_random_receipt_code(existing_codes),
             created_at=created_at,
         )
         db.add(sale)
         db.flush()
+        for item in items:
+            item.sale_id = sale.id
+            db.add(item)
+        sales.append(sale)
 
-        for product, quantity, line_total in line_items:
-            db.add(
-                SaleItem(
-                    sale_id=sale.id,
-                    product_id=product.id,
-                    product_name_snapshot=product.name,
-                    unit_price_cents_snapshot=product.price_cents,
-                    quantity=quantity,
-                    unit_type_snapshot=product.unit_type,
-                    pieces_deducted=quantity * product.pieces_per_unit,
-                    line_total_cents=line_total,
-                )
-            )
+    # One mistaken sale and one return, so voids and refunds show up in the reports.
+    # (Stock isn't replayed for this backfill, so only the status changes.)
+    recent = sorted(sales, key=lambda sale: sale.created_at, reverse=True)
+    for sale, status, reason in ((recent[0], SaleStatus.VOIDED, "Rang up twice"),
+                                 (recent[1], SaleStatus.REFUNDED, "Item returned")):
+        sale.status = status
+        sale.status_changed_at = now
+        sale.status_reason = reason
 
     db.commit()
     print(f"Seeded {count} historical sales across the last {days} days")

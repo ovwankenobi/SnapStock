@@ -45,6 +45,10 @@ class Message(UUIDPkMixin, CreatedAtMixin, Base):
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
     body: Mapped[str] = mapped_column(Text, nullable=False)
+    # Set on the order card posted when a buyer's online order is ready for the seller to approve.
+    sale_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sales.id"), nullable=True
+    )
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     conversation: Mapped["Conversation"] = relationship(back_populates="messages")

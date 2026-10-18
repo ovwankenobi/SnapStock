@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import Field
 
+from app.models.sale import PaymentMethod, SaleStatus
 from app.models.user import UserRole
 from app.schemas.base import CamelModel
 
@@ -43,6 +44,18 @@ class MessageCreate(CamelModel):
     body: str = Field(min_length=1)
 
 
+class MessageOrder(CamelModel):
+    """Live state of the order an order-card message points at (status changes after it was sent)."""
+
+    id: uuid.UUID
+    buyer_name: str
+    items_summary: str
+    total_cents: int
+    payment_method: PaymentMethod
+    status: SaleStatus
+    payment_proof_url: str | None = None
+
+
 class MessageRead(CamelModel):
     id: uuid.UUID
     conversation_id: uuid.UUID
@@ -50,6 +63,8 @@ class MessageRead(CamelModel):
     body: str
     created_at: datetime
     read_at: datetime | None
+    sale_id: uuid.UUID | None = None
+    order: MessageOrder | None = None
 
 
 class MessageListResponse(CamelModel):

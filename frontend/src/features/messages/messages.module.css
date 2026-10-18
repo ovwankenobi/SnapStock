@@ -1,5 +1,6 @@
 .list-page { height: 100%; overflow-y: auto; max-width: 640px; }
-.hint { font-size: 12.5px; color: var(--color-muted); padding: 20px 28px; }
+.list-search { position: sticky; top: 0; z-index: 1; padding: 12px var(--page-gutter); background: var(--color-bg); }
+.hint { font-size: 12.5px; color: var(--color-muted); padding: var(--page-gutter); }
 
 .chat-page { height: 100%; display: flex; flex-direction: column; }
 
@@ -8,11 +9,24 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 20px;
+  padding: 12px var(--page-gutter);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface-alt);
 }
-.product-pin-body { min-width: 0; }
+.product-pin-body { flex: 1; min-width: 0; }
+.product-pin-buy {
+  flex: none;
+  height: 36px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.product-pin-buy:disabled { background: var(--color-border); color: var(--color-muted); cursor: not-allowed; }
 .product-pin-name {
   font-size: 13.5px;
   font-weight: 700;

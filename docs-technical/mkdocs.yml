@@ -55,6 +55,7 @@ nav:
       - Inventory Service: api/inventory-service.md
       - Sales Service: api/sales-service.md
       - Messaging Service: api/messaging-service.md
+      - Payout Accounts: api/payouts-service.md
   - Database Schema: database.md
   - Getting Started: getting-started.md
   - Deferred Features: deferred-features.md

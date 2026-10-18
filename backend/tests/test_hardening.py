@@ -189,7 +189,10 @@ def test_public_receipt_endpoint_leaks_no_private_fields(client):
         "receiptCode",
         "saleType",
         "items",
+        "subtotalCents",
+        "discountCents",
         "totalCents",
+        "status",
         "paymentMethod",
         "createdAt",
     }

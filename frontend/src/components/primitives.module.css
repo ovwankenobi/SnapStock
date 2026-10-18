@@ -47,7 +47,10 @@
   padding: 18px;
 }
 .stat-label { font-size: 12.5px; font-weight: 600; color: var(--color-muted); margin-bottom: 6px; }
-.stat-value { font-size: 26px; font-weight: 800; }
+.stat-value { font-size: 22px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+@media (min-width: 768px) {
+  .stat-value { font-size: 26px; }
+}
 .stat-sub { font-size: 12px; color: var(--color-muted); margin-top: 2px; }
 
 .segmented {
@@ -59,6 +62,8 @@
 .segmented-option {
   flex: 1;
   height: 44px;
+  padding: 0 14px;
+  white-space: nowrap;
   border: none;
   background: var(--color-surface);
   color: var(--color-muted);
@@ -69,6 +74,11 @@
 .segmented-option-active {
   background: var(--color-primary);
   color: var(--color-on-primary);
+}
+.segmented-option:disabled {
+  color: var(--color-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .search-field {
@@ -153,3 +163,129 @@
   cursor: pointer;
 }
 .stepper-value { min-width: 20px; text-align: center; font-weight: 700; }
+.stepper .stepper-value-button {
+  width: auto;
+  min-width: 52px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 15px;
+}
+
+/* numpad: big touch keypad for amount entry */
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.numpad-key {
+  height: 64px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 26px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+}
+.numpad-key:active { background: var(--color-primary-soft); border-color: var(--color-primary); }
+.numpad-key-muted { font-size: 22px; color: var(--color-muted); }
+@media (max-height: 700px) {
+  .numpad-key { height: 54px; }
+}
+
+.measure-input { display: flex; align-items: center; gap: 10px; }
+.measure-input input {
+  width: 120px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  outline: none;
+}
+.measure-input span { font-weight: 700; color: var(--color-muted); }
+
+/* sheet: bottom sheet on phones, centered dialog from 768px */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+}
+.sheet {
+  width: 100%;
+  max-height: 90dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--color-surface);
+  border-radius: 20px 20px 0 0;
+  padding: 10px 20px calc(20px + var(--safe-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+}
+.sheet-centered { align-items: center; text-align: center; }
+.sheet-handle {
+  flex: none;
+  align-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-border);
+  margin-bottom: 4px;
+}
+@media (min-width: 768px) {
+  .sheet-backdrop { align-items: center; padding: 24px; }
+  .sheet { max-width: 420px; border-radius: 20px; padding: 24px; }
+  .sheet-handle { display: none; }
+}
+
+/* action bar: pinned to the bottom of the scroll area on phones, inline on desktop */
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin: auto calc(-1 * var(--page-gutter)) 0;
+  padding: 12px var(--page-gutter);
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.action-bar > * { flex: 1; }
+@media (min-width: 1024px) {
+  .action-bar {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border-top: none;
+    background: transparent;
+  }
+  .action-bar > * { flex: none; }
+}
+
+/* touch screens: keep every tap target at least 44px */
+@media (pointer: coarse) {
+  .segmented-option { min-height: 46px; }
+}
+
+/* date range filter */
+.date-filter { display: flex; flex-direction: column; gap: 10px; }
+.date-range { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.date-range-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.date-range-field span { font-size: 12px; font-weight: 700; color: var(--color-muted); }
+.date-range-field input {
+  width: 100%; min-width: 0; height: 44px; padding: 0 12px;
+  font: inherit; font-size: 14px; color: var(--color-text); color-scheme: light dark;
+  background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md);
+}
+.date-range-field input:focus { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.date-range-error { grid-column: 1 / -1; margin: 0; font-size: 12px; color: var(--color-danger); }

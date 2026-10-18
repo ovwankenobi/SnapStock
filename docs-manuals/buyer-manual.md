@@ -76,18 +76,32 @@ If you're not sure what something is called:
 3. Tap **Buy** (disabled and labeled **Out of Stock** if none is available).
 4. In the order sheet:
    - Adjust the **quantity** with the stepper.
-   - Choose a **Payment Method** — **Cash**, **GCash**, or **Maya**.
+   - Choose a **Payment Method**. **Cash** is always available. **GCash**, **Maya**, **Bank** and
+     **Other** can only be picked if the seller has an account for them, and the seller's QR code
+     appears when you pick one.
    - Confirm the **Total** shown.
-5. Tap **Buy Now**.
+5. Tap **Place order**.
 
 ![Screenshot: product detail page with Buy sheet open](placeholder.png)
 
-You'll be taken straight to your digital receipt — there's no separate "waiting for seller
-confirmation" step; the order completes as soon as you confirm it (as long as stock is
-available).
+You'll land on your **Order** page, marked **Awaiting payment**. The items are held for you
+while you pay.
 
-> Note: Payment methods are recorded for the seller's records but are not processed inside the
-> app — arrange payment with the seller the same way you would for a cash-register purchase.
+- **GCash, Maya or bank transfer:** pay to one of the seller's accounts shown on the page (scan
+  the QR or copy the number), then tap **Upload payment screenshot** and pick the screenshot of
+  your payment. You can replace it if you uploaded the wrong one.
+- **Cash:** pay the seller when you pick up your order — no screenshot needed.
+
+The seller gets a message about your order in your chat with them: right away for a cash order,
+or when you upload your screenshot. You'll see it as an order card under **Messages**, and
+tapping **View order** brings you back to the order page.
+
+Once the seller confirms your payment, the page changes to **Payment confirmed** and you can open
+your digital receipt. If you change your mind before then, tap **Cancel order**. The seller may
+also reject an order (for example, if no payment arrived).
+
+> Note: Payments are not processed inside the app — the seller checks your screenshot (or your
+> cash) and confirms it themselves.
 
 ---
 
@@ -105,9 +119,10 @@ available).
 
 # 5. Viewing Order History
 
-1. Open **Receipts** from the bottom navigation.
-2. You'll see every past order — seller name, amount, item count, and date.
-3. Tap any entry to open the full receipt, which you can also share as a link or QR code from the
+1. Open **Transactions** from the bottom navigation (the page is titled **My Transactions**).
+2. You'll see every past order — seller name, amount, item count, date, and a badge for orders
+   that are **Awaiting payment** or **Cancelled**.
+3. Tap an awaiting or cancelled order to open its order page; tap any other entry to open the full receipt, which you can also share as a link or QR code from the
    seller's copy of the same receipt.
 
-![Screenshot: My Receipts list](placeholder.png)
+![Screenshot: My Transactions list](placeholder.png)

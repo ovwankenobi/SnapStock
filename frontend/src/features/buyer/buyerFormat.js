@@ -21,7 +21,7 @@ export function toFeedListing(product) {
     photoUrl: product.photoUrl,
     category: product.category,
     priceCents: product.priceCents,
-    unitLabel: unitSuffix(product.unitType),
+    unitLabel: unitSuffix(product.unitType, product.unitLabel),
     badgeTone: badge.tone,
     badgeLabel: badge.label,
   };

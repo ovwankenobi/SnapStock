@@ -7,13 +7,14 @@ import AppLayout from "../../components/AppLayout";
 import EmptyState from "../../components/EmptyState";
 import LoadingState from "../../components/LoadingState";
 import StatTile from "../../components/StatTile";
-import { centsToPeso } from "../../lib/format";
+import { centsToPeso, formatQuantity, isMeasured, unitSuffix } from "../../lib/format";
 import { sellerNavItems } from "../../lib/nav";
 import { useAuth } from "../auth/AuthContext";
 import LowStockAlert from "./LowStockAlert";
 import LowStockBanner from "./LowStockBanner";
+import PayoutSetupBanner from "./PayoutSetupBanner";
+import PendingOrdersBanner from "./PendingOrdersBanner";
 import PinnableCard from "./PinnableCard";
-import QuickActionTile from "./QuickActionTile";
 import SalesTrendChart from "./SalesTrendChart";
 import styles from "./dashboard.module.css";
 import { usePinnedCards } from "./usePinnedCards";
@@ -75,7 +76,13 @@ export default function SellerDashboardPage() {
         <StatTile
           label="Top Seller"
           value={topSeller ? topSeller.productName : "No sales yet"}
-          subLabel={topSeller ? `${topSeller.quantitySold} sold today` : undefined}
+          subLabel={
+            topSeller
+              ? `${formatQuantity(topSeller.unitType, topSeller.quantitySold)}${
+                  isMeasured(topSeller.unitType) ? ` ${unitSuffix(topSeller.unitType, topSeller.unitLabel)}` : ""
+                } sold today`
+              : undefined
+          }
         />
       ),
     },
@@ -97,6 +104,8 @@ export default function SellerDashboardPage() {
     >
       <div className={styles.page}>
         <div className={styles.date}>{TODAY_LABEL}</div>
+        <PendingOrdersBanner />
+        <PayoutSetupBanner />
         <LowStockBanner />
 
         {isInitialLoading && <LoadingState message="Loading your dashboard…" />}
@@ -129,15 +138,6 @@ export default function SellerDashboardPage() {
         )}
 
         <SalesTrendChart points={trend} />
-
-        <div className={styles["section-label"]}>Quick Actions</div>
-        <div className={styles["quick-actions"]}>
-          <QuickActionTile to="/inventory" icon="box" label="Inventory" />
-          <QuickActionTile to="/analytics" icon="chart" label="Sales History" />
-          <QuickActionTile to="/messages" icon="chat" label="Messages" />
-          <QuickActionTile to="/sales" icon="plus" label="New Sale" />
-          <QuickActionTile to="/profile" icon="user" label="Profile" />
-        </div>
       </div>
     </AppLayout>
   );

@@ -5,7 +5,9 @@ This runs the backend, database migrations, and frontend locally. Backend serves
 
 ## Prerequisites
 
-- Python 3.11+ and a local PostgreSQL instance on `localhost:5432` (user/pass `postgres`/`postgres`)
+- Python 3.11+ and PostgreSQL on `localhost:5432` (user/pass `postgres`/`postgres`). The repo's
+  `docker-compose.yml` provides one: `docker compose up -d db` from the repo root starts
+  Postgres 16 with data in the `snapstock-pgdata` volume (development only).
 - Node.js for the frontend
 
 ## Backend
@@ -26,7 +28,13 @@ SECRET_KEY=dev-secret-key-change-in-production
 ACCESS_TOKEN_EXPIRE_MINUTES=1440
 CORS_ORIGINS=["http://localhost:5173"]
 UPLOAD_DIR=uploads
+BUSINESS_TIMEZONE=Asia/Manila
 ```
+
+`BUSINESS_TIMEZONE` (IANA name, default `Asia/Manila`) defines the sellers' business day for
+"today", date ranges and daily/weekday/hourly analytics buckets. `tzdata` is in
+`requirements.txt` so this works on Windows too. `AUTH_REGISTER_RATE_LIMIT` (default `5/minute`)
+and `AUTH_LOGIN_RATE_LIMIT` (default `10/minute`) are also configurable.
 
 Apply migrations, then run the server:
 
@@ -72,8 +80,15 @@ npm install
 `frontend/.env`:
 
 ```
-VITE_API_URL=http://localhost:6767/api/v1
+VITE_API_URL=/api/v1
 ```
+
+The URL is relative on purpose. The Vite dev server (`vite.config.js`) proxies `/api` and
+`/uploads` to the backend at `http://127.0.0.1:6767` and listens on all interfaces
+(`server.host: true`). A phone on the same Wi-Fi can open `http://<your-PC-IP>:5173` and only
+needs to reach that one port. Because requests are same-origin through the proxy, CORS doesn't
+come into play in development. If you point `VITE_API_URL` at an absolute URL instead, add the
+frontend's origin to the backend's `CORS_ORIGINS`.
 
 Run the dev server:
 
@@ -91,5 +106,6 @@ npm run build
 ## Running both
 
 Start the backend (`uvicorn`, port 6767) and the frontend (`npm run dev`, port 5173) in separate
-terminals. The frontend's `apiClient` reads `VITE_API_URL` to reach the backend; the backend's
-CORS config (`CORS_ORIGINS`) must include the frontend's origin.
+terminals, then open `http://localhost:5173` (or `http://<your-PC-IP>:5173` on a phone). The
+frontend's `apiClient` sends requests to `VITE_API_URL` (`/api/v1`), and the Vite proxy forwards
+them to the backend.

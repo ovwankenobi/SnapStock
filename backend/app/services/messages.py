@@ -2,10 +2,11 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.conversation import Conversation, Message
 from app.models.product import Product
+from app.models.sale import PaymentMethod, Sale
 from app.models.user import User, UserRole
 
 
@@ -145,3 +146,53 @@ def last_messages(db: Session, conversation_ids: list[uuid.UUID]) -> dict[uuid.U
         .all()
     )
     return {message.conversation_id: message for message in rows}
+
+
+def order_items_summary(sale: Sale) -> str:
+    return ", ".join(item.product_name_snapshot for item in sale.items)
+
+
+def post_order_card(db: Session, sale: Sale, buyer: User) -> Message:
+    """Post "<buyer> bought this — approve?" from the buyer into their chat with the seller.
+
+    Sent when an online order becomes reviewable: a cash order once placed, a digital one each time
+    the buyer uploads proof of payment. The card links to the order, so it always shows the live status.
+    """
+    product_id = sale.items[0].product_id if sale.items else None
+    conversation = (
+        db.query(Conversation)
+        .filter(
+            Conversation.seller_id == sale.seller_id,
+            Conversation.buyer_id == buyer.id,
+            Conversation.product_id == product_id
+            if product_id is not None
+            else Conversation.product_id.is_(None),
+        )
+        .first()
+    )
+    if conversation is None:
+        conversation = Conversation(seller_id=sale.seller_id, buyer_id=buyer.id, product_id=product_id)
+        db.add(conversation)
+        db.flush()
+
+    total = f"₱{sale.total_cents / 100:,.2f}"
+    bought = f"{buyer.full_name} bought {order_items_summary(sale)} ({total})"
+    if sale.payment_method == PaymentMethod.CASH:
+        body = f"{bought} and will pay in cash. Approve or not?"
+    else:
+        body = f"{bought}. Here is the proof of payment — approve or not?"
+
+    message = Message(conversation_id=conversation.id, sender_id=buyer.id, body=body, sale_id=sale.id)
+    db.add(message)
+    conversation.last_message_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(message)
+    return message
+
+
+def orders_for_messages(db: Session, messages: list[Message]) -> dict[uuid.UUID, Sale]:
+    sale_ids = {m.sale_id for m in messages if m.sale_id is not None}
+    if not sale_ids:
+        return {}
+    sales = db.query(Sale).options(selectinload(Sale.items)).filter(Sale.id.in_(sale_ids)).all()
+    return {sale.id: sale for sale in sales}

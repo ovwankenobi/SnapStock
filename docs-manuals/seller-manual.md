@@ -1,7 +1,8 @@
 # Public Market POS — Seller Manual
 
 Welcome to Public Market POS. This guide walks through everyday selling tasks: setting up your
-stall, managing inventory, ringing up sales, and reviewing what you've sold.
+stall, managing inventory, ringing up sales, approving online orders, and reviewing what you've
+sold.
 
 > Note: Screens shown in this guide are placeholders. Replace them with real screenshots before
 > distributing this manual.
@@ -27,7 +28,9 @@ stall, managing inventory, ringing up sales, and reviewing what you've sold.
 
 ![Screenshot: seller registration form](placeholder.png)
 
-You'll be signed in automatically and taken to your **Home** dashboard.
+Next you'll see **How should buyers pay you?** Add your GCash, Maya or bank account and its QR
+code (see [1.4](#14-payout-accounts-how-buyers-pay-you)), then tap **Save & continue**, or tap
+**Skip for now** to do it later. You'll then land on your **Home** dashboard.
 
 ## 1.2 Logging In
 
@@ -38,12 +41,46 @@ You'll be signed in automatically and taken to your **Home** dashboard.
 
 Your stall setup isn't locked in at registration — you can update it anytime:
 
-1. Open **Profile** from the bottom navigation.
+1. Open **Profile** from the navigation.
 2. Edit **Full name**, **Phone**, **Business name**, **Business type**, **Address**, or
    **Description**.
 3. Tap **Save Changes**.
 
 > Note: Your email is shown but cannot be changed from this screen.
+
+The Profile screen is also where you switch the language (**English** / **Tagalog**), turn
+**Dark mode** on or off, and log out.
+
+## 1.4 Payout Accounts (How Buyers Pay You)
+
+Payout accounts tell buyers where to send money when they don't pay in cash.
+
+1. Open **Profile** and scroll to **Payout accounts**.
+2. Tap **Add payout account**.
+3. Choose the **Payment method**: **GCash**, **Maya**, **Bank**, or **Other**.
+4. Fill in **Account name** and **Account / mobile number**. For **Bank**, also enter the **Bank
+   name**. For **Other**, enter the **Provider name** (e.g. GoTyme, ShopeePay).
+5. Tap **Save account**.
+6. Tap **Tap to add your QR code** and pick a photo of your QR.
+
+![Screenshot: payout accounts on the Profile screen](placeholder.png)
+
+Your first account becomes your **Default** one. Tap **Make default** on another account to
+switch, or use **Edit** and **Delete** to manage your accounts.
+
+> Note: Buyers can only choose GCash, Maya, Bank or Other if you have an account for that
+> method. Cash is always available. Until you add an account, your Home dashboard shows a
+> reminder.
+
+## 1.5 Your Home Dashboard
+
+**Home** shows today's numbers at a glance: **Today's Sales**, **Today's Revenue**, low-stock
+items and your **Top Seller**, plus a sales trend chart. Tap **Customize** to choose which cards
+are pinned to the top, then tap **Done**.
+
+Banners at the top tell you when something needs attention: online orders waiting for your
+approval, items running low, or missing payout accounts. Tap the orders banner to go straight to
+them.
 
 ---
 
@@ -51,21 +88,28 @@ Your stall setup isn't locked in at registration — you can update it anytime:
 
 ## 2.1 Adding a Product
 
-1. Open **Inventory** from the bottom navigation.
-2. Tap the **+** button (top right).
+1. Open **Inventory** from the navigation.
+2. Tap **+ Add Product**.
 3. Fill in the product form:
    - Tap the photo area to **add a photo** (JPEG, PNG, or WebP)
    - **Product Name**
    - **Price (₱)**
-   - **Category** (optional — used for filtering)
-   - **Unit Type** — choose **Per Piece**, **Bundle**, or **Per Kilo**
-   - If you chose **Bundle** or **Per Kilo**, a second field appears (see 2.2 below)
-   - **Starting Stock (pieces)**
+   - **Cost price (₱)** (optional) — what one unit costs you. The app uses it to show your
+     profit and margin in **Analytics**, and shows the margin at your current price as you type.
+   - **Category** (optional) — pick an existing category, search for one, or type a new name
+     and tap **Add new category**
+   - **Unit Type** — choose **Per Piece**, **Bundle**, or **Per Unit**
+   - If you chose **Bundle**, a **Pieces per Bundle** field appears; if you chose **Per Unit**, a
+     **Unit of Measure** picker appears (see 2.2 below)
+   - **Starting Stock** (in pieces, or in your chosen unit for **Per Unit** products)
    - **Low Stock Threshold** — how low stock can get before it's flagged
    - **Description** (optional)
 4. Tap **Save Product**.
 
 ![Screenshot: add product form](placeholder.png)
+
+> Note: To remove a category you no longer use, open the **Category** picker and tap **Delete
+> category** next to it. Products that used it become uncategorized; nothing else changes.
 
 ## 2.2 Understanding Piece vs. Bundle
 
@@ -81,8 +125,10 @@ number as the source of truth even when you sell the same stock two different wa
   > **Starting Stock** of `250` pieces. When you later sell 2 bundles, the app deducts
   > `2 × 25 = 50` pieces, leaving `200` pieces — shown to you as **8 bundles** remaining.
 
-- **Per Kilo** — priced and sold by weight in grams (see [4. Manual Stock Deduction](#4-manual-stock-deduction)
-  for how weighing works at checkout).
+- **Per Unit** — priced and sold by a measurement you choose: tap a preset (**kg**, **g**, **m**,
+  **cm**, **ft**, **yd**, **L**) or type your own (e.g. `sack`, `gallon`). The **Price** is per one
+  whole unit (e.g. ₱120 per yd), and you can sell, restock, and set stock in fractions up to 3
+  decimals — `1.5` yd, `0.25` kg.
 
 ## 2.3 Editing a Product
 
@@ -90,64 +136,118 @@ number as the source of truth even when you sell the same stock two different wa
 2. Change any field and tap **Save Changes**.
 
 > Note: Starting stock can't be edited directly from here — use **Restock** (below) or a sale to
-> change stock, so every change is recorded.
+> change stock, so every change is recorded. Changing the **Cost price** only affects future
+> sales; profit on past sales stays as it was.
 
 ## 2.4 Restocking
 
-1. Open the product from **Inventory**.
-2. Scroll to the **Restock** section.
-3. Enter **Pieces to add**.
-4. Tap **Add Stock**.
+**One product:**
 
-## 2.5 Low Stock Alerts
+1. Open the product from **Inventory**.
+2. In the **Restock** section, enter **Pieces to add** (or the amount in the product's unit,
+   e.g. `2.5` kg, for **Per Unit** products).
+3. Tap **Add Stock**.
+
+**Several products from one delivery:**
+
+1. On **Inventory**, tap **+ Restock Items**.
+2. Find each product you received (use the search box) and enter how much arrived.
+3. If the price you paid has changed, enter the new **Cost per unit** for that product
+   (optional).
+4. Tap **Save Restock**. The button shows how many products you're restocking.
+
+## 2.5 Finding Products
+
+- Type in **Search products** to search by name.
+- Use the **All / In Stock / Low / Out** filter to see only products in that stock state.
+- Tap the **camera icon** to **search by photo**: snap or pick a photo, type what it is, and
+  search. Results come from the description you type; the photo itself isn't analyzed yet. Tap
+  **Clear** to go back to your full list.
+
+## 2.6 Low Stock Alerts
 
 Products at or below their **Low Stock Threshold** show a **Low Stock** badge in Inventory and
-appear in a banner on your **Home** dashboard, so you know what to reorder before it runs out.
+appear on your **Home** dashboard, so you know what to reorder before it runs out.
 
 ---
 
 # 3. Ringing Up a Sale
 
-Public Market POS supports two kinds of sales from the same **New Sale** screen:
+The **New Sale** screen (the **Sell** button in the middle of the bottom bar on phones) has two
+tabs:
 
-- **Walk-in Sale** — a cash-register-style sale with no buyer account. Nothing is linked to a
-  buyer; it's just recorded against your stall.
-- **Buyer Account** — a sale linked to a registered buyer (useful when a buyer wants a record of
-  their purchase, or paid digitally through their account).
+- **Walk-in Sale** — for customers at your stall. Nothing is linked to a buyer account.
+- **Buyer Account** — online orders that buyers placed in the app and that are waiting for your
+  approval (see [3.3](#33-approving-online-orders)). You don't add items here.
 
-## 3.1 Walk-in Sale (Anonymous, Cash)
+## 3.1 Walk-in Sale
 
-1. Open **New Sale** from the bottom navigation.
-2. Leave the toggle on **Walk-in Sale**.
-3. Tap **+ Add Items** and tap products to add them to the cart (see
-   [4. Manual Stock Deduction](#4-manual-stock-deduction)), **or**, if you don't want to itemize,
-   enter an amount directly under **Or just enter an amount** and add an optional **Note**.
-4. Choose a **Payment Method** — **Cash**, **GCash**, or **Maya**.
-5. Tap **Complete Sale**.
-6. You'll land on the **Receipt** screen with a QR code you can **Share** or **Print**.
+1. Open **New Sale**. It starts on **Walk-in Sale**.
+2. Tap **+ Add Items**, then tap a product tile to open the number pad (see
+   [4. Manual Stock Deduction](#4-manual-stock-deduction)). Use the category chips at the top to
+   narrow the list.
+3. Tap **Done** to go back to the cart.
+4. Check the cart. If you agreed on a different price for an item, open its price and change the
+   **Unit price** for this sale only (tap **Reset** to go back to your list price). The app warns
+   you if the price is **Below your cost**. Your product's own price doesn't change.
+5. To take money off the whole sale, enter a **Discount** and tap **Add**. The **Total** updates.
+6. Tap **Complete Sale**.
+7. Under **How did the buyer pay?**, choose **Cash** or one of your payout methods. For a digital
+   payment, your matching QR code appears so the customer can scan it.
+8. Once you've been paid, tap **Confirm & Complete Sale**.
+9. You'll land on the **Receipt** screen with a QR code the buyer can scan.
 
-## 3.2 Buyer-Linked Sale
+![Screenshot: New Sale cart and payment sheet](placeholder.png)
 
-1. Open **New Sale** and switch the toggle to **Buyer Account**.
-2. Search for the buyer by **phone or email**.
-3. Tap the matching buyer from the results to select them.
-4. Tap **+ Add Items** and build the cart as above.
-5. Choose a **Payment Method** and tap **Complete Sale**.
+## 3.2 Payment Methods
 
-> Note: A buyer-linked sale requires at least one item in the cart — you can't complete it with
-> just a manual amount the way you can for a walk-in sale.
+Every sale records how it was paid: **Cash**, **GCash**, **Maya**, **Bank** or **Other**. Methods
+you have no payout account for are greyed out. Add one under **Profile → Payout accounts** (see
+[1.4](#14-payout-accounts-how-buyers-pay-you)).
 
-## 3.3 The Fastest Path: Quick Sell
+> Note: The app only records the payment method. It doesn't move money or check that a digital
+> payment arrived, so confirm it in your GCash, Maya or bank app first.
 
-For a single-item cash sale, you don't need the full **New Sale** screen:
+## 3.3 Approving Online Orders
 
-1. On **Inventory**, find the product.
-2. Tap the small **−1** button on its row.
-3. Adjust the **quantity** with the stepper if selling more than one.
-4. Choose a **Payment Method**.
-5. Tap **Confirm Sale**.
+When a buyer orders from your stall in the app, their items are held from your stock straight
+away, but the order doesn't count as a sale until you approve it.
 
-This is the quickest way to log a sale while a customer is standing at your stall.
+You'll know an order is waiting in three ways:
+
+- A banner on **Home**, e.g. **"1 order is waiting for payment confirmation"**.
+- A number on the **Buyer Account** tab, e.g. **Buyer Account (2)**.
+- An order card in **Messages**, sent from the buyer: for a cash order, as soon as they place it;
+  for a digital payment, each time they upload a payment screenshot. Tap **Review & approve**.
+
+To approve or reject an order:
+
+1. Open **New Sale → Buyer Account** and tap the order (or follow the banner or chat card).
+2. GCash, Maya and bank orders show the buyer's **Payment screenshot**. Tap it to view it full
+   size and check it against your account. Cash orders have no screenshot — approve them once
+   the buyer pays you.
+3. Tap **Approve order** once you've received the money. The order becomes a completed sale,
+   counts in Transactions and Analytics under the buyer's name, and you'll see its receipt.
+4. If the payment never arrived, tap **Reject order** (you can add a reason). The held items go
+   back into your stock.
+
+Tap **← All orders to approve** to go back to the list.
+
+> Note: On a digital-payment order, **Approve order** stays disabled until the buyer uploads a
+> screenshot. Orders waiting for approval don't count in your sales totals. The buyer can also
+> cancel an order while it's waiting; its items then go back into your stock.
+
+## 3.4 Voiding or Refunding a Sale
+
+Open the sale's receipt (from **Transactions**, or right after completing it).
+
+- **Void sale** — for a sale entered by mistake (wrong item, rang up twice). The sale is removed
+  from your reports and its items go back into stock.
+- **Refund sale** — for when the buyer returns the items. The amount is recorded as a refund and
+  the items go back into stock.
+
+Both ask for an optional reason. Either way the receipt stays in your records, labelled
+**Voided** or **Refunded**. Partial refunds aren't supported.
 
 ---
 
@@ -157,22 +257,19 @@ There is **no barcode scanner** in this app — every sale is entered by tapping
 deducted automatically based on what you tap and enter. There's nothing extra to do to "deduct
 stock" — it happens as part of completing a sale.
 
-## 4.1 Adding Items by Piece or Bundle
+## 4.1 Adding Items
 
-1. From the item-picker screen (**+ Add Items** in New Sale), find the product tile.
-2. Type the quantity directly into the number field on the tile (in pieces or bundles, matching
-   how that product is sold).
-3. Tap **Done** once you've added everything.
+1. On the item-picker screen (**+ Add Items** in New Sale), tap a product tile (**Tap to enter
+   amount**).
+2. Enter the quantity on the number pad — in pieces or bundles, or in the product's unit for a
+   **Per Unit** item (use the decimal point for amounts like `1.5` yd or `0.25` kg).
+3. Check the **Subtotal** shown, then tap **Add to Cart**.
+4. To change an item already in the cart, tap its tile again and tap **Update Cart**, or
+   **Remove from Cart**.
 
-## 4.2 Adding a Weighed (Per Kilo) Item
+Stock for that product is reduced by exactly the amount you enter when you complete the sale.
 
-1. On a **Per Kilo** product's tile, tap **Tap to enter weight**.
-2. Enter the weight in **grams**, or tap a preset (**250g**, **500g**, **1kg**).
-3. Confirm the **Subtotal** shown, then tap **Add to Cart**.
-
-Stock for that product is reduced by exactly the number of grams you enter.
-
-## 4.3 What Happens If Stock Runs Out Mid-Sale
+## 4.2 What Happens If Stock Runs Out Mid-Sale
 
 If a cart has multiple items and one of them doesn't have enough stock, the whole sale is
 rejected — none of the items are deducted and no sale is recorded. You'll see an error message;
@@ -180,39 +277,73 @@ adjust the quantity or remove the item and try **Complete Sale** again.
 
 ---
 
-# 5. Viewing Sales History
+# 5. Transactions
 
-1. Open **Sales History** from the bottom navigation (or **Home → Sales History**).
-2. Use the **Today / This Week / This Month** filter to change the date range.
-3. Tap any sale row to open its receipt.
-4. The side panel shows a **demand forecast** — products likely to run low soon, based on your
-   recent sales pace.
+1. Open **Transactions** from the navigation.
+2. Choose a date range: **Today**, **7 Days**, **30 Days**, or **Custom** (pick a **From** and
+   **To** date).
+3. Tap any sale to open its receipt, where you can void or refund it (see
+   [3.4](#34-voiding-or-refunding-a-sale)).
+
+To get rid of a test sale or a duplicate, use **Delete transaction** on its row. This voids the
+sale: its items go back into stock and it drops out of your reports, but it stays in the list
+marked **Voided**.
 
 ---
 
-# 6. Troubleshooting
+# 6. Analytics
+
+Open **Analytics** from the navigation. At the top, **Insights** points out things worth acting
+on, marked **Urgent**, **Check** or **FYI** — for example an item about to run out, a product
+sold below its cost, a product with no cost price, or a sudden jump or drop in sales. Each
+insight suggests what to do, such as **Restock now** or **Add its cost price**.
+
+Below that are four tabs:
+
+- **Sales** — net sales, number of sales, units sold and the average sale for the date range you
+  pick, compared with the period before. Also your top 5 products and your average sales by
+  weekday and by hour.
+- **Profit** — gross profit, gross margin and cost of goods. **From sales to profit** shows how
+  your gross sales at list price become net sales after price changes, discounts and refunds.
+  Profit only covers products that have a **Cost price**; the tab tells you when some are
+  missing.
+- **Stock** — how many days of stock each product has left, what to reorder, and which items
+  are slow-moving or overstocked.
+- **Forecast** — expected sales for each product over the next 7 and 14 days, with the
+  forecast's recent accuracy.
+
+> Note: "Today" and every daily figure follow Philippine time. Voided sales, orders waiting for
+> approval and cancelled orders never count.
+
+---
+
+# 7. Troubleshooting
 
 **A product's stock looks wrong.**
 Check the product's edit screen — if the number seems off, use **Restock** to correct it upward,
-noting why in your own records. Every stock change (sales, quick-sells, restocks) is logged
-internally, so a support request can trace exactly what happened to a product's count.
+noting why in your own records. Every stock change (sales, restocks, voids, refunds, cancelled
+orders) is logged internally, so a support request can trace exactly what happened to a
+product's count.
 
 **I tapped the wrong item during a sale.**
-On the **New Sale** cart screen, use the **+/−** steppers on a cart line to adjust or zero out the
-quantity before tapping **Complete Sale** — nothing is deducted from stock until you complete the
-sale, so mistakes made while building the cart cost nothing.
+Before tapping **Complete Sale**, tap the item's tile again and change the amount, or tap
+**Remove from Cart**. Nothing is deducted from stock until you complete the sale, so mistakes
+made while building the cart cost nothing. If you already completed it, **void** the sale from
+its receipt (see [3.4](#34-voiding-or-refunding-a-sale)).
 
 **"Not enough stock" error when completing a sale.**
-Someone else may have sold the last of that item first (or your cart quantity exceeds what's on
-hand). Lower the quantity to match what **Inventory** shows as available, or remove the item.
+Someone else may have sold the last of that item first, an online order may be holding it, or
+your cart quantity is more than you have. Lower the quantity to match what **Inventory** shows
+as available, or remove the item.
 
-**A quick-sell said "Sold" but I was offline.**
-The app queues a quick-sell made while your phone has no connection and shows a banner (**"X
-sale(s) pending sync"**). It automatically retries once you're back online — no action needed.
-If the item sold out in the meantime, that queued sale is dropped rather than oversold, and it
-will no longer appear as pending.
+**A payment method is greyed out.**
+You don't have a payout account for that method yet. Add one under **Profile → Payout accounts**.
 
-**A buyer isn't showing up in buyer search.**
-Buyer search only matches by exact-ish **phone number or email**, and only finds buyers who
-already created an account. If they haven't registered, ring the sale up as a **Walk-in Sale**
-instead.
+**I can't approve a GCash, Maya or bank order.**
+The buyer hasn't uploaded a payment screenshot yet. Message them from the order's chat, or
+reject the order if the payment isn't coming.
+
+**I lost my connection while selling.**
+Sales, order approvals and messages need an internet connection, and nothing is recorded until
+it goes through. Once you're back online, check **Transactions** to see whether the sale was
+saved before trying again, so it isn't recorded twice.

@@ -35,11 +35,11 @@ resolve to a valid counterpart.
 
 ## `GET /conversations/{conversationId}/messages`
 
-Paginated message history, newest first (`page`, `pageSize`, default 30/page).
+Paginated message history, newest first (`page`, `pageSize`, default 30/page, max 100).
 
 **Response:** `MessageListResponse` — `{ items: MessageRead[], total, page, pageSize }`. Each
 `MessageRead` has `id`, `conversationId`, `senderId`, `body`, `createdAt`, `readAt` (`null` until
-read).
+read), `saleId` and `order`. Both are `null` on ordinary messages.
 
 **Errors:** `404` if the conversation doesn't exist or the caller isn't a participant.
 
@@ -54,6 +54,30 @@ Send a message. Also bumps `conversation.last_message_at` to now.
 
 Marks every message in the conversation **not** sent by the caller as read (`read_at = now()`).
 Used to zero out the unread badge when a conversation is opened. Returns `204`, no body.
+
+---
+
+## Order cards
+
+When a buyer's online order becomes ready for the seller to review, the backend posts a message
+**from the buyer** into their conversation with the seller (`services/messages.post_order_card`):
+
+- a **cash** order, as soon as it is placed;
+- a **digital** order (GCash, Maya, bank, other), each time the buyer uploads a payment
+  screenshot.
+
+The message goes into the conversation for that seller, buyer and the order's first product, and
+is created if it doesn't exist yet. Its `body` is plain text (e.g. *"Ana bought Pork belly
+(₱350.00) and will pay in cash. Approve or not?"*), so it reads correctly as a list preview. Its
+`messages.sale_id` points at the order.
+
+`GET .../messages` attaches the order's **live** state as `order` (`MessageOrder`: `id`,
+`buyerName`, `itemsSummary`, `totalCents`, `paymentMethod`, `status`, `paymentProofUrl`). The card
+always shows the current status, even after the order was approved or cancelled.
+`features/messages/OrderCardBubble.jsx` renders it. While the order is pending, the seller gets
+**Review & approve**, which opens `/sales?path=account&order=<id>` (see
+[Sales Service](sales-service.md)). Otherwise the button is **View order**, which takes the buyer
+to `/buyer/orders/<id>`.
 
 ---
 

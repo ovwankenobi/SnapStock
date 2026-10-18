@@ -9,7 +9,7 @@ deducted." Every stock change (quick-sell, itemized sale, restock) computes
 
 ```mermaid
 flowchart LR
-    A["Product defined<br/>unit_type + pieces_per_unit"] --> B["Sale input<br/>(bundle, piece, or grams quantity)"]
+    A["Product defined<br/>unit_type + pieces_per_unit"] --> B["Sale input<br/>(bundle, piece, or measure quantity)"]
     B --> C["Conversion<br/>pieces = quantity × pieces_per_unit"]
     C --> D["Single stock count<br/>stock_pieces −= pieces"]
     D --> E["Stock re-displayed<br/>in the product's own unit_type"]
@@ -27,20 +27,35 @@ pieces of bread) and `stock_pieces = 250` (10 bundles on hand).
 | New `stock_pieces` | `250 − 50 = 200` |
 | Displayed remaining stock | `200 / 25 = 8 bundles` |
 
-`ProductForm` labels this field **"Pieces per Bundle"** and only shows it for `bundle` and
-`grams` unit types (`showPiecesPerUnit` in `frontend/src/features/inventory/ProductForm.jsx`) —
-`piece` products default to `pieces_per_unit = 1` and the field is hidden, since one selling unit
-already equals one piece.
+`ProductForm` (`frontend/src/features/inventory/ProductForm.jsx`) labels this field **"Pieces per
+Bundle"** and only shows it for `bundle` products — `piece` and `measure` products always send
+`pieces_per_unit = 1` and the field is hidden.
 
-## Grams products
+## Measured products
 
-For `unit_type = "grams"` (e.g. meat, rice sold by weight), `pieces_per_unit` is always `1` in
-practice (see `backend/app/seed.py` / `backend/scripts/seed.py`), and `stock_pieces` stores grams
-directly rather than a piece count — a seller weighs out `quantity` grams (via `WeighDialog` in
-the checkout cart, or `BuySheet` for buyers) and that many grams are deducted 1:1. `price_cents`
-for a grams product is priced **per gram**, and the UI displays remaining stock converted to kilos
-(`unitSuffix` in `frontend/src/lib/format.js` shows `"kg"` for on-hand stock, while sale line
-items are labeled in `"g"` — see `saleUnitLabel` in `frontend/src/features/sales/salesFormat.js`).
+For `unit_type = "measure"` (meat by the kg, fabric by the yard, rope by the meter, …) the seller
+picks the unit, stored as `Product.unit_label` (≤ 16 chars, required for measure products). To
+allow fractional amounts without floats, everything quantity-shaped is stored in **thousandths of
+that unit** (`MEASURE_QUANTITY_SCALE = 1000` in `services/inventory.py`):
+
+| Field | Meaning for a measure product |
+|---|---|
+| `stock_pieces` | thousandths of the unit (`50500` = 50.5 yd) |
+| `low_stock_threshold` | thousandths of the unit |
+| sale / restock `quantity` | thousandths of the unit (`1500` = 1.5 yd) |
+| `pieces_per_unit` | always `1` (enforced: 400 otherwise), so stock deducted = quantity |
+| `price_cents` | per **whole** unit (`12000` = ₱120/yd) |
+
+Line totals use `line_total_cents(price_cents, quantity, unit_type)` in `services/inventory.py`,
+which divides by the scale with integer half-up rounding (`1500 × 12000 / 1000 = 18000`). The
+frontend mirrors it as `lineTotalCents` in `frontend/src/lib/format.js`, alongside
+`formatQuantity` / `parseQuantityInput` / `sanitizeQuantityInput` for converting between the
+stored integer and the decimal text sellers type. `sale_items.unit_label_snapshot` keeps receipts
+stable if a product's unit label is edited later.
+
+The migration `c3e1a7d9f2b4` converted the old `grams` ("Per Kilo") type: grams were already
+thousandths of a kg, so stock and quantities were kept as-is, `unit_label` set to `kg`, and
+per-gram prices multiplied by 1000 to per-kg prices (line totals unchanged).
 
 ## Why this matters
 

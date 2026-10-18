@@ -6,12 +6,12 @@ import { listCatalogProducts, searchCatalogByImage } from "../../api/catalog";
 import AppLayout from "../../components/AppLayout";
 import EmptyState from "../../components/EmptyState";
 import IconButton from "../../components/IconButton";
+import ImageSearchPanel from "../../components/ImageSearchPanel";
 import LoadingState from "../../components/LoadingState";
 import SearchField from "../../components/SearchField";
 import { buyerNavItems } from "../../lib/nav";
 import styles from "./buyer.module.css";
 import { toFeedListing } from "./buyerFormat";
-import ImageSearchPanel from "./ImageSearchPanel";
 import ProductFeedCard from "./ProductFeedCard";
 
 export default function BuyerHomePage() {

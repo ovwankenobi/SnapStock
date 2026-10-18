@@ -13,6 +13,15 @@ export async function listProducts({ search, category, stockStatus, page = 1, pa
   return data;
 }
 
+export async function getProductCategories() {
+  const { data } = await apiClient.get("/products/categories");
+  return data;
+}
+
+export async function deleteProductCategory(name) {
+  await apiClient.delete("/products/categories", { params: { name } });
+}
+
 export async function getLowStockProducts() {
   const { data } = await apiClient.get("/products/low-stock");
   return data;
@@ -53,5 +62,20 @@ export async function uploadProductPhoto(id, file) {
   const { data } = await apiClient.post(`/products/${id}/photo`, form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+  return data;
+}
+
+export async function searchProductsByImage({ file, query }) {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("query", query);
+  const { data } = await apiClient.post("/products/search-by-image", form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function bulkRestockProducts(payload) {
+  const { data } = await apiClient.post("/products/restock", payload);
   return data;
 }

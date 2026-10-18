@@ -1,3 +1,5 @@
+import { formatQuantity, isMeasured, unitSuffix } from "../../lib/format";
+
 const PAYMENT_LABELS = {
   cash: "Cash",
   gcash: "GCash",
@@ -10,14 +12,14 @@ export function paymentMethodLabel(value) {
   return PAYMENT_LABELS[value] || value;
 }
 
-const SALE_UNIT_LABELS = { piece: "pc", bundle: "bundle", grams: "g" };
-
-export function saleUnitLabel(unitType) {
-  return SALE_UNIT_LABELS[unitType] || unitType;
+export function saleUnitLabel(unitType, unitLabel) {
+  return unitSuffix(unitType, unitLabel);
 }
 
-export function saleQuantityLabel(unitType, quantity) {
-  return unitType === "grams" ? `${quantity} g` : String(quantity);
+export function saleQuantityLabel(unitType, quantity, unitLabel) {
+  return isMeasured(unitType)
+    ? `${formatQuantity(unitType, quantity)} ${unitSuffix(unitType, unitLabel)}`
+    : String(quantity);
 }
 
 export function formatReceiptTimestamp(isoString) {
@@ -41,9 +43,15 @@ export function formatShortTimestamp(isoString) {
 function mapReceiptItems(items) {
   return (items || []).map((item) => ({
     name: item.productNameSnapshot ?? item.name,
-    qtyLabel: saleQuantityLabel(item.unitTypeSnapshot ?? item.unitType, item.quantity),
+    qtyLabel: saleQuantityLabel(
+      item.unitTypeSnapshot ?? item.unitType,
+      item.quantity,
+      item.unitLabelSnapshot ?? item.unitLabel,
+    ),
     unitPriceCents: item.unitPriceCentsSnapshot ?? item.unitPriceCents,
-    priceUnitLabel: saleUnitLabel(item.unitTypeSnapshot ?? item.unitType),
+    // Only the seller's own SaleRead carries the list price; the public receipt shows the charged price.
+    listPriceCents: item.listPriceCentsSnapshot ?? null,
+    priceUnitLabel: saleUnitLabel(item.unitTypeSnapshot ?? item.unitType, item.unitLabelSnapshot ?? item.unitLabel),
     lineTotalCents: item.lineTotalCents,
   }));
 }
@@ -58,7 +66,10 @@ export function saleToReceipt(sale, { shopName, servedBy } = {}) {
     servedBy,
     buyerName: sale.buyerName,
     items: mapReceiptItems(sale.items),
+    subtotalCents: sale.subtotalCents,
+    discountCents: sale.discountCents || 0,
     totalCents: sale.totalCents,
+    status: sale.status,
   };
 }
 
@@ -72,6 +83,17 @@ export function publicReceiptToReceipt(receipt) {
     servedBy: null,
     buyerName: null,
     items: mapReceiptItems(receipt.items),
+    subtotalCents: receipt.subtotalCents,
+    discountCents: receipt.discountCents || 0,
     totalCents: receipt.totalCents,
+    status: receipt.status,
   };
 }
+
+// Badge for every status other than a plain completed sale.
+export const SALE_STATUS_TAG = {
+  voided: { tone: "danger", label: "Voided" },
+  refunded: { tone: "warning", label: "Refunded" },
+  pending_payment: { tone: "info", label: "Awaiting payment" },
+  cancelled: { tone: "danger", label: "Cancelled" },
+};

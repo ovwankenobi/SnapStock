@@ -1,14 +1,18 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import apiClient from "../lib/apiClient";
 
 export default function HealthCheck() {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isError, error } = useQuery({
     queryKey: ["health"],
     queryFn: () => apiClient.get("/health").then((res) => res.data),
   });
 
-  if (isLoading) return <p>Checking API...</p>;
-  if (isError) return <p>API error: {error.message}</p>;
-  return <p>API status: {data.status}</p>;
+  useEffect(() => {
+    if (isError) console.error(`API error: ${error.message}`);
+    else if (data) console.log(`API status: ${data.status}`);
+  }, [data, isError, error]);
+
+  return null;
 }

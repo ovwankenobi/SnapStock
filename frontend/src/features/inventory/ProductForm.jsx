@@ -1,13 +1,16 @@
 import Icon from "../../components/Icon";
 import ProductThumb from "../../components/ProductThumb";
-import { mediaUrl } from "../../lib/format";
+import { isMeasured, mediaUrl, pesoInputToCents, sanitizePesoInput, sanitizeQuantityInput } from "../../lib/format";
+import { useAuth } from "../auth/AuthContext";
+import CategorySelect from "./CategorySelect";
 import styles from "./inventory.module.css";
 
 const UNIT_OPTIONS = [
   { value: "piece", label: "Per Piece" },
   { value: "bundle", label: "Bundle" },
-  { value: "grams", label: "Per Kilo" },
+  { value: "measure", label: "Per Unit" },
 ];
+const UNIT_LABEL_PRESETS = ["kg", "g", "m", "cm", "ft", "yd", "L"];
 
 export default function ProductForm({
   value,
@@ -17,8 +20,13 @@ export default function ProductForm({
   submitLabel = "Save Product",
   isSubmitting = false,
 }) {
-  const showPiecesPerUnit = value.unitType === "bundle" || value.unitType === "grams";
-  const piecesPerUnitLabel = value.unitType === "grams" ? "Grams per Kilo Sold" : "Pieces per Bundle";
+  const { t } = useAuth();
+  const measured = isMeasured(value.unitType);
+  const priceCents = Number(value.priceInput) * 100;
+  const costCents = pesoInputToCents(value.costInput);
+  const marginPct = priceCents > 0 && costCents != null ? Math.round(((priceCents - costCents) / priceCents) * 100) : null;
+  const isCustomUnitLabel = !UNIT_LABEL_PRESETS.includes(value.unitLabel);
+  const stockUnit = measured ? value.unitLabel || "unit" : "pieces";
 
   return (
     <form
@@ -68,11 +76,21 @@ export default function ProductForm({
         </div>
         <div className={styles.field}>
           <div className={styles["field-label"]}>Category</div>
-          <input
-            className={styles["text-input"]}
-            value={value.category}
-            onChange={(e) => onFieldChange("category", e.target.value)}
-          />
+          <CategorySelect value={value.category} onChange={(category) => onFieldChange("category", category)} />
+        </div>
+      </div>
+
+      <div>
+        <div className={styles["field-label"]}>{t("inventory.costPrice")}</div>
+        <input
+          className={styles["text-input"]}
+          inputMode="decimal"
+          placeholder={t("inventory.optional")}
+          value={value.costInput}
+          onChange={(e) => onFieldChange("costInput", sanitizePesoInput(e.target.value))}
+        />
+        <div className={`${styles["field-hint"]} ${marginPct != null && marginPct <= 0 ? styles["field-hint-danger"] : ""}`}>
+          {marginPct == null ? t("inventory.costHint") : t("inventory.marginHint", { pct: marginPct })}
         </div>
       </div>
 
@@ -92,9 +110,35 @@ export default function ProductForm({
         </div>
       </div>
 
-      {showPiecesPerUnit && (
+      {measured && (
         <div>
-          <div className={styles["field-label"]}>{piecesPerUnitLabel}</div>
+          <div className={styles["field-label"]}>Unit of Measure</div>
+          <div className={styles["chip-row"]}>
+            {UNIT_LABEL_PRESETS.map((label) => (
+              <button
+                key={label}
+                type="button"
+                className={`${styles["unit-toggle"]} ${value.unitLabel === label ? styles["unit-toggle-active"] : ""}`}
+                onClick={() => onFieldChange("unitLabel", label)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <input
+            className={`${styles["text-input"]} ${styles["unit-label-input"]}`}
+            placeholder="Other unit (e.g. sack, gallon)"
+            maxLength={16}
+            value={isCustomUnitLabel ? value.unitLabel : ""}
+            onChange={(e) => onFieldChange("unitLabel", e.target.value)}
+            required={isCustomUnitLabel}
+          />
+        </div>
+      )}
+
+      {value.unitType === "bundle" && (
+        <div>
+          <div className={styles["field-label"]}>Pieces per Bundle</div>
           <input
             className={styles["text-input"]}
             inputMode="numeric"
@@ -106,23 +150,26 @@ export default function ProductForm({
       )}
 
       <div className={styles["field-row"]}>
+        {!value.hideStock && (
+          <div className={styles.field}>
+            <div className={styles["field-label"]}>Starting Stock ({stockUnit})</div>
+            <input
+              className={styles["text-input"]}
+              inputMode={measured ? "decimal" : "numeric"}
+              value={value.stockInput}
+              onChange={(e) => onFieldChange("stockInput", sanitizeQuantityInput(e.target.value, value.unitType))}
+            />
+          </div>
+        )}
         <div className={styles.field}>
-          <div className={styles["field-label"]}>Starting Stock (pieces)</div>
+          <div className={styles["field-label"]}>Low Stock Threshold{measured ? ` (${stockUnit})` : ""}</div>
           <input
             className={styles["text-input"]}
-            inputMode="numeric"
-            value={value.stockInput}
-            onChange={(e) => onFieldChange("stockInput", e.target.value.replace(/[^0-9]/g, ""))}
-            disabled={value.disableStock}
-          />
-        </div>
-        <div className={styles.field}>
-          <div className={styles["field-label"]}>Low Stock Threshold</div>
-          <input
-            className={styles["text-input"]}
-            inputMode="numeric"
+            inputMode={measured ? "decimal" : "numeric"}
             value={value.lowStockThresholdInput}
-            onChange={(e) => onFieldChange("lowStockThresholdInput", e.target.value.replace(/[^0-9]/g, ""))}
+            onChange={(e) =>
+              onFieldChange("lowStockThresholdInput", sanitizeQuantityInput(e.target.value, value.unitType))
+            }
           />
         </div>
       </div>
@@ -136,7 +183,7 @@ export default function ProductForm({
         />
       </div>
 
-      <button type="submit" className={styles["submit-button"]} disabled={isSubmitting}>
+      <button type="submit" className={`${styles["submit-button"]} ${styles["form-submit"]}`} disabled={isSubmitting}>
         {isSubmitting ? "Saving..." : submitLabel}
       </button>
     </form>

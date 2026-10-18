@@ -2,12 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 
 import { getPublicReceipt } from "../../api/sales";
+import { useAuth } from "../auth/AuthContext";
 import ReceiptCard from "./ReceiptCard";
 import { publicReceiptToReceipt } from "./salesFormat";
 import styles from "./sales.module.css";
 
 export default function PublicReceiptPage() {
   const { receiptCode } = useParams();
+  const { t } = useAuth();
 
   const { data: receipt, isLoading, isError } = useQuery({
     queryKey: ["publicReceipt", receiptCode],
@@ -20,6 +22,9 @@ export default function PublicReceiptPage() {
       <div className={styles["receipt-screen"]}>
         {isLoading && <p className={styles["public-not-found"]}>Loading receipt...</p>}
         {isError && <p className={styles["public-not-found"]}>This receipt could not be found.</p>}
+        {receipt && receipt.status !== "completed" && (
+          <div className={styles["receipt-thanks"]}>{t(`saleStatus.${receipt.status}Notice`)}</div>
+        )}
         {receipt && <ReceiptCard receipt={publicReceiptToReceipt(receipt)} />}
       </div>
     </div>

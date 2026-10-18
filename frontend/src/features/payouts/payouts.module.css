@@ -1,0 +1,124 @@
+.form { display: flex; flex-direction: column; gap: 14px; }
+.field-label { font-size: 12.5px; font-weight: 700; color: var(--color-muted); margin-bottom: 7px; display: block; }
+.text-input {
+  width: 100%;
+  height: 50px;
+  border-radius: 13px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.qr-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 160px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.qr-drop img { width: 160px; height: 160px; object-fit: contain; border-radius: 10px; background: #fff; }
+
+.actions { display: flex; gap: 10px; }
+.primary,
+.secondary {
+  flex: 1;
+  height: 50px;
+  border-radius: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primary { background: var(--color-primary); color: var(--color-on-primary); border: none; }
+.primary:disabled { opacity: 0.6; cursor: default; }
+.secondary { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+.error { color: var(--color-danger); font-size: 13px; }
+
+.section { display: flex; flex-direction: column; gap: 10px; }
+.section-hint { font-size: 13px; color: var(--color-muted); margin: -4px 0 4px; }
+
+.card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.card-stacked { flex-direction: column; align-items: stretch; text-align: center; }
+.card-qr { flex: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: #fff; }
+.card-stacked .card-qr { width: auto; height: auto; max-width: 100%; max-height: 220px; align-self: center; }
+.card-qr-missing {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  border: 1px dashed var(--color-border);
+  color: var(--color-muted);
+  font-size: 10.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.card-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.card-title { font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+.card-stacked .card-title { justify-content: center; }
+.card-name { font-size: 13.5px; }
+.card-number { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; overflow-wrap: anywhere; }
+.default-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+.card-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.link-button {
+  min-height: 44px;
+  background: none;
+  border: none;
+  padding: 0 8px 0 0;
+  margin-right: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+.link-danger { color: var(--color-danger); }
+
+.add-button {
+  height: 48px;
+  border-radius: 13px;
+  border: 1.5px dashed var(--color-border);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pay-panel { display: flex; flex-direction: column; gap: 8px; align-self: stretch; }
+.pay-hint { font-size: 12.5px; color: var(--color-muted); text-align: center; }
+
+/* Five methods must fit a 360px phone without horizontal scroll. */
+.method-picker button { min-width: 0; padding: 0 6px; }
+
+/* In the payment panel: QR beside the details so the sheet fits a phone screen without scrolling. */
+.pay-panel .card { flex-direction: row; align-items: center; text-align: left; gap: 14px; padding: 10px; }
+.pay-panel .card-qr { width: auto; height: auto; max-width: 140px; max-height: 140px; }
+.pay-panel .card-title { justify-content: flex-start; }

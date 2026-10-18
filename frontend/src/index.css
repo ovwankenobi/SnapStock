@@ -24,6 +24,14 @@
 
   --font-sans: -apple-system, "Segoe UI", system-ui, Roboto, sans-serif;
 
+  /* layout — phone values; widened at the tablet/desktop breakpoints below */
+  --page-gutter: 16px;
+  --app-bar-h: 56px;
+  --bottom-nav-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --content-max: 1200px;
+
   color-scheme: light dark;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -96,8 +104,31 @@ button {
   font-family: inherit;
 }
 
-button {
+button,
+a {
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* iOS zooms the page when a focused input is under 16px */
+@media (max-width: 767px) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter: 28px;
+  }
 }
 
 @media print {

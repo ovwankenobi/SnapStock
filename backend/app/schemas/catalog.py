@@ -4,10 +4,12 @@ from datetime import datetime
 from pydantic import Field
 
 from app.models.product import UnitType
-from app.models.sale import PaymentMethod, SaleType
+from app.models.sale import PaymentMethod, SaleStatus, SaleType
 from app.models.user import BusinessType
 from app.schemas.base import CamelModel
+from app.schemas.payout import PayoutAccountRead
 from app.schemas.product import StockStatus
+from app.schemas.sale import SaleRead
 
 
 class CatalogProductRead(CamelModel):
@@ -19,6 +21,7 @@ class CatalogProductRead(CamelModel):
     photo_url: str | None
     price_cents: int
     unit_type: UnitType
+    unit_label: str | None = None
     pieces_per_unit: int
     category: str | None
     stock_status: StockStatus
@@ -38,6 +41,7 @@ class CatalogSellerRead(CamelModel):
     address: str | None
     description: str | None
     photo_url: str | None
+    payout_accounts: list[PayoutAccountRead] = []
     products: list[CatalogProductRead]
 
 
@@ -64,6 +68,7 @@ class BuyerReceiptItem(CamelModel):
     seller_name: str
     sale_type: SaleType
     total_cents: int
+    status: SaleStatus
     payment_method: PaymentMethod
     receipt_code: str
     created_at: datetime
@@ -75,3 +80,10 @@ class BuyerReceiptListResponse(CamelModel):
     total: int
     page: int
     page_size: int
+
+
+class BuyerOrderRead(SaleRead):
+    """A buyer's own order, with where to send payment while it is still pending."""
+
+    seller_name: str
+    payout_accounts: list[PayoutAccountRead] = []

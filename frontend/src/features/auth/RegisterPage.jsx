@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { savePayoutAccount } from "../../api/payouts";
+import PayoutAccountForm from "../payouts/PayoutAccountForm";
+import { payloadFromDraft } from "../payouts/payoutFormat";
 import { useAuth } from "./AuthContext";
 import styles from "./auth.module.css";
+import Logo from "../../components/Logo";
 import LanguageToggle from "./LanguageToggle";
 import RoleOptionCard from "./RoleOptionCard";
 
@@ -24,12 +28,15 @@ const INITIAL_FORM = {
 };
 
 export default function RegisterPage() {
-  const { register, t } = useAuth();
+  const { register, refreshUser, t } = useAuth();
   const navigate = useNavigate();
   const [role, setRole] = useState(null);
   const [form, setForm] = useState(INITIAL_FORM);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPayoutStep, setShowPayoutStep] = useState(false);
+  const [payoutError, setPayoutError] = useState("");
+  const [isSavingPayout, setIsSavingPayout] = useState(false);
 
   function updateField(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -56,7 +63,11 @@ export default function RegisterPage() {
           : {}),
       };
       const user = await register(payload);
-      navigate(user.role === "seller" ? "/dashboard" : "/buyer", { replace: true });
+      if (user.role === "seller") {
+        setShowPayoutStep(true);
+      } else {
+        navigate("/buyer", { replace: true });
+      }
     } catch (err) {
       setError(err.response?.status === 400 ? t("auth.register.emailTaken") : t("auth.register.error"));
     } finally {
@@ -64,12 +75,45 @@ export default function RegisterPage() {
     }
   }
 
+  async function handlePayoutSubmit(draft, qrFile) {
+    setPayoutError("");
+    setIsSavingPayout(true);
+    try {
+      await savePayoutAccount({ values: payloadFromDraft(draft), qrFile });
+      await refreshUser();
+      navigate("/dashboard", { replace: true });
+    } catch {
+      setPayoutError(t("payouts.saveError"));
+    } finally {
+      setIsSavingPayout(false);
+    }
+  }
+
+  if (showPayoutStep) {
+    return (
+      <div className={styles.screen}>
+        <LanguageToggle className={styles["language-toggle"]} />
+        <div className={styles["app-name"]}>{t("payouts.setupTitle")}</div>
+        <p className={styles.tagline}>{t("payouts.setupSubtitle")}</p>
+        <div className={styles["auth-form"]}>
+          <PayoutAccountForm
+            onSubmit={handlePayoutSubmit}
+            onCancel={() => navigate("/dashboard", { replace: true })}
+            submitLabel={t("payouts.saveContinue")}
+            cancelLabel={t("payouts.skip")}
+            isSubmitting={isSavingPayout}
+            error={payoutError}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (!role) {
     return (
       <div className={styles.screen}>
         <LanguageToggle className={styles["language-toggle"]} />
-        <div className={styles.mark}>S</div>
-        <div className={styles["app-name"]}>{t("common.appName")}</div>
+        <Logo height={72} className={styles.logo} />
         <p className={styles.tagline}>{t("auth.register.chooseRole")}</p>
         <div className={styles.roles}>
           <RoleOptionCard

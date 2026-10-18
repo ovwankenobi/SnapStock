@@ -42,3 +42,22 @@ export async function getMyReceipts({ page = 1, pageSize = 20 } = {}) {
   const { data } = await apiClient.get("/me/receipts", { params: { page, page_size: pageSize } });
   return data;
 }
+
+export async function getMyOrder(saleId) {
+  const { data } = await apiClient.get(`/me/orders/${saleId}`);
+  return data;
+}
+
+export async function uploadPaymentProof(saleId, file) {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await apiClient.post(`/me/orders/${saleId}/proof`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function cancelMyOrder(saleId) {
+  const { data } = await apiClient.post(`/me/orders/${saleId}/cancel`);
+  return data;
+}

@@ -1,52 +1,37 @@
+/* Mobile-first: base = phone (app bar + bottom tabs); >=768px icon rail; >=1024px full sidebar. */
 .shell {
   display: flex;
+  flex-direction: column;
   height: 100%;
-  min-height: 100vh;
+  height: 100dvh;
   background: var(--color-bg);
   color: var(--color-text);
 }
 
+/* ---------- sidebar (hidden on phones) ---------- */
 .sidebar {
-  width: 236px;
+  display: none;
   flex: none;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
-  display: flex;
   flex-direction: column;
-  padding: 22px 16px;
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 8px 22px;
 }
-.brand-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font-weight: 800;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.brand-name { font-size: 17px; font-weight: 800; }
+.brand-mark { flex: none; }
+.brand-name { flex: none; }
 
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 44px;
-  padding: 11px 12px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
   color: var(--color-muted);
-  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -71,28 +56,168 @@
 }
 .sidebar-footer { flex: 1; display: flex; align-items: flex-end; font-size: 11px; color: var(--color-muted); padding: 0 8px; }
 
-.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+/* ---------- main column ---------- */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .header {
   flex: none;
-  padding: 22px 28px;
+  height: var(--app-bar-h);
+  padding: 0 var(--page-gutter);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
 }
-.header-title { flex: 1; font-size: 23px; font-weight: 800; letter-spacing: -0.3px; }
-.content { flex: 1; overflow: auto; }
+.header-title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-desktop-actions { display: none; gap: 12px; }
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* room for the raised center "Sell" button, which overhangs the top of the tab bar */
+  padding-bottom: 28px;
+}
+.shell-no-bottom-nav .content { padding-bottom: var(--safe-bottom); }
+
+/* ---------- bottom tab bar (phones) ---------- */
+.bottom-nav {
+  flex: none;
+  display: flex;
+  align-items: stretch;
+  height: calc(var(--bottom-nav-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+}
+.bottom-nav-item {
+  flex: 1;
+  /* Each slot is at least as wide as its full label (e.g. "Transactions"); spare width is shared equally. */
+  min-width: min-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.bottom-nav-item-active { color: var(--color-primary); }
+.bottom-nav-icon {
+  position: relative;
+  width: 52px;
+  max-width: 100%;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bottom-nav-item-active .bottom-nav-icon { background: var(--color-primary-soft); }
+.bottom-nav-primary {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  margin-top: -32px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(15, 110, 86, 0.35);
+  border: 4px solid var(--color-surface);
+  box-sizing: content-box;
+}
+.bottom-nav-label {
+  max-width: 100%;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Seven full labels only fit a ~360px phone at a slightly smaller size. */
+@media (max-width: 399px) {
+  .bottom-nav-label { font-size: 10px; letter-spacing: -0.1px; }
+}
+
+/* ---------- tablet: icon rail ---------- */
+@media (min-width: 768px) {
+  .shell { flex-direction: row; }
+  .bottom-nav { display: none; }
+  .content,
+  .shell-no-bottom-nav .content { padding-bottom: 0; }
+
+  .sidebar { display: flex; width: 84px; padding: 18px 8px; align-items: stretch; }
+  .brand { justify-content: center; padding-bottom: 18px; }
+  .brand-name { display: none; }
+  .nav-item {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    min-height: 60px;
+    padding: 8px 4px;
+    font-size: 11px;
+    text-align: center;
+  }
+  .nav-label { line-height: 1.2; }
+  .sidebar-footer { display: none; }
+
+  .header { height: auto; padding: 16px var(--page-gutter); gap: 12px; }
+  .header-title { font-size: 21px; }
+  .header-desktop-actions { display: flex; }
+}
+
+/* ---------- desktop: full sidebar ---------- */
+@media (min-width: 1024px) {
+  .sidebar { width: 236px; padding: 22px 16px; }
+  .brand { justify-content: flex-start; padding: 0 8px 22px; }
+  .brand-name { display: block; }
+  .nav-item {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-height: 44px;
+    padding: 11px 12px;
+    font-size: 14px;
+    text-align: left;
+  }
+  .sidebar-footer { display: flex; }
+
+  .header { padding: 22px var(--page-gutter); }
+  .header-title { font-size: 23px; letter-spacing: -0.3px; }
+}
+
+@media (hover: hover) {
+  .nav-item:not(.nav-item-active):hover { background: var(--color-surface-alt); color: var(--color-text); }
+}
 
 @media print {
   .sidebar,
-  .header {
+  .header,
+  .bottom-nav {
     display: none;
   }
   .shell {
-    min-height: 0;
+    height: auto;
     display: block;
   }
   .content {
     overflow: visible;
   }
 }
+
+/* Pending-order count on the raised Sell button: ringed so it separates from the green circle. */
+.bottom-nav-primary .nav-badge { top: -8px; right: -8px; min-width: 18px; height: 18px; border-radius: 9px; font-size: 10px; border: 2px solid var(--color-surface); }

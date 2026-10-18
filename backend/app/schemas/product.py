@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from pydantic import Field, computed_field
+from pydantic import Field, computed_field, field_validator, model_validator
 
 from app.models.product import UnitType
 from app.models.sale import PaymentMethod
@@ -23,25 +23,49 @@ def compute_stock_status(stock_pieces: int, low_stock_threshold: int) -> StockSt
     return StockStatus.IN_STOCK
 
 
+def _clean_unit_label(value: str | None) -> str | None:
+    if value is None:
+        return None
+    value = value.strip()
+    return value or None
+
+
 class ProductCreate(CamelModel):
     name: str = Field(min_length=1)
     description: str | None = None
     price_cents: int = Field(gt=0)
+    cost_cents: int | None = Field(default=None, ge=0)
     unit_type: UnitType
+    unit_label: str | None = Field(default=None, max_length=16)
     pieces_per_unit: int = Field(default=1, ge=1)
     stock_pieces: int = Field(default=0, ge=0)
     low_stock_threshold: int = Field(default=10, ge=0)
     category: str | None = None
+
+    normalize_unit_label = field_validator("unit_label")(_clean_unit_label)
+
+    @model_validator(mode="after")
+    def check_unit_label(self) -> "ProductCreate":
+        if self.unit_type == UnitType.MEASURE:
+            if self.unit_label is None:
+                raise ValueError("unit_label is required for measure products")
+        else:
+            self.unit_label = None
+        return self
 
 
 class ProductUpdate(CamelModel):
     name: str | None = Field(default=None, min_length=1)
     description: str | None = None
     price_cents: int | None = Field(default=None, gt=0)
+    cost_cents: int | None = Field(default=None, ge=0)
     unit_type: UnitType | None = None
+    unit_label: str | None = Field(default=None, max_length=16)
     pieces_per_unit: int | None = Field(default=None, ge=1)
     low_stock_threshold: int | None = Field(default=None, ge=0)
     category: str | None = None
+
+    normalize_unit_label = field_validator("unit_label")(_clean_unit_label)
 
 
 class ProductRead(CamelModel):
@@ -51,7 +75,9 @@ class ProductRead(CamelModel):
     description: str | None
     photo_url: str | None
     price_cents: int
+    cost_cents: int | None = None
     unit_type: UnitType
+    unit_label: str | None
     pieces_per_unit: int
     stock_pieces: int
     low_stock_threshold: int
@@ -73,9 +99,22 @@ class ProductListResponse(CamelModel):
     page_size: int
 
 
+class ProductImageSearchResultItem(CamelModel):
+    product: ProductRead
+    # Always null in stage 1, same as the catalog image search.
+    confidence: float | None = None
+
+
+class ProductImageSearchResponse(CamelModel):
+    query: str
+    results: list[ProductImageSearchResultItem]
+
+
 class QuickSellRequest(CamelModel):
     quantity: int = Field(gt=0)
     payment_method: PaymentMethod
+    # The price agreed during the sale; omitted = the product's current price.
+    unit_price_cents: int | None = Field(default=None, ge=0)
 
 
 class QuickSellResult(CamelModel):
@@ -87,4 +126,17 @@ class QuickSellResult(CamelModel):
 
 class RestockRequest(CamelModel):
     quantity: int = Field(gt=0)
+    note: str | None = None
+    # New cost per selling unit for this delivery; omitted = keep the current cost.
+    unit_cost_cents: int | None = Field(default=None, ge=0)
+
+
+class BulkRestockItem(CamelModel):
+    product_id: uuid.UUID
+    quantity: int = Field(gt=0)
+    unit_cost_cents: int | None = Field(default=None, ge=0)
+
+
+class BulkRestockRequest(CamelModel):
+    items: list[BulkRestockItem] = Field(min_length=1)
     note: str | None = None

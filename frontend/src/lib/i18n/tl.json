@@ -1,16 +1,23 @@
 {
   "common": {
-    "appName": "SnapStock",
-    "tagline": "Point of sale para sa iyong sari-sari store o puwesto sa palengke"
+    "appName": "SnapStock"
   },
   "roles": {
-    "seller": { "title": "Nagtitinda", "description": "Pamahalaan ang imbentaryo at benta" },
-    "buyer": { "title": "Bumibili", "description": "Mamili mula sa mga lokal na nagtitinda" }
+    "seller": {
+      "title": "Nagtitinda",
+      "description": "Pamahalaan ang imbentaryo at benta"
+    },
+    "buyer": {
+      "title": "Bumibili",
+      "description": "Mamili mula sa mga lokal na nagtitinda"
+    }
   },
   "auth": {
     "login": {
       "email": "Email",
       "password": "Password",
+      "showPassword": "Ipakita ang password",
+      "hidePassword": "Itago ang password",
       "submit": "Mag-log In",
       "submitting": "Nag-lo-log in...",
       "noAccount": "Bago dito?",
@@ -48,6 +55,356 @@
   "nav": {
     "logout": "Mag-log out",
     "darkMode": "Lumipat sa dark mode",
-    "lightMode": "Lumipat sa light mode"
+    "lightMode": "Lumipat sa light mode",
+    "home": "Home",
+    "inventory": "Imbentaryo",
+    "newSale": "Bagong Benta",
+    "sell": "Benta",
+    "salesHistory": "Kasaysayan ng Benta",
+    "history": "Kasaysayan",
+    "messages": "Mensahe",
+    "discover": "Tuklasin",
+    "receipts": "Resibo",
+    "profile": "Profile",
+    "back": "Bumalik",
+    "appearance": "Itsura",
+    "darkModeLabel": "Dark mode",
+    "account": "Account",
+    "analytics": "Analitika",
+    "transactions": "Transaksyon"
+  },
+  "payouts": {
+    "title": "Mga payout account",
+    "subtitle": "Paano ka babayaran ng mga buyer. Idagdag ang iyong GCash, Maya o bank account kasama ang QR code.",
+    "methods": {
+      "gcash": "GCash",
+      "maya": "Maya",
+      "bank_transfer": "Bangko",
+      "other": "Iba pa"
+    },
+    "method": "Paraan ng bayad",
+    "bankName": "Pangalan ng bangko",
+    "providerName": "Provider (hal. GoTyme, ShopeePay)",
+    "accountName": "Pangalan sa account",
+    "accountNumber": "Account / mobile number",
+    "qrCode": "QR code",
+    "qrAdd": "I-tap para magdagdag ng QR code",
+    "qrChange": "I-tap para palitan ang QR code",
+    "noQr": "Walang QR",
+    "default": "Default",
+    "makeDefault": "Gawing default",
+    "edit": "I-edit",
+    "delete": "Burahin",
+    "confirmDelete": "Burahin ang payout account na ito?",
+    "add": "Magdagdag ng payout account",
+    "save": "I-save ang account",
+    "saving": "Sine-save...",
+    "cancel": "Kanselahin",
+    "saveError": "Hindi ma-save ang payout account. Pakisubukang muli.",
+    "empty": "Wala pang payout account.",
+    "setupTitle": "Paano ka babayaran ng mga buyer?",
+    "setupSubtitle": "Idagdag ang iyong GCash, Maya o bank QR para makabayad ang mga buyer. Puwede mo rin itong gawin mamaya sa Profile.",
+    "saveContinue": "I-save at magpatuloy",
+    "skip": "Mamaya na lang",
+    "nudge": "Idagdag ang iyong GCash, Maya o bank QR para makabayad ang mga buyer nang digital.",
+    "payVia": "Magbayad gamit ang",
+    "scanHint": "I-scan ang QR o magpadala sa account sa ibaba, saka i-tap ang Buy Now.",
+    "cash": "Cash",
+    "showToBuyerHint": "Ipa-scan sa buyer ang QR na ito, saka tapusin ang benta kapag nakabayad na.",
+    "paymentTitle": "Paano nagbayad ang buyer?",
+    "total": "Kabuuan",
+    "confirmPayment": "Kumpirmahin at Tapusin ang Benta",
+    "completing": "Tinatapos ang benta...",
+    "back": "Bumalik sa benta"
+  },
+  "dateRange": {
+    "today": "Ngayon",
+    "week": "7 Araw",
+    "month": "30 Araw",
+    "custom": "Pumili",
+    "from": "Mula",
+    "to": "Hanggang",
+    "invalid": "Pumili ng simula na hindi lalampas sa huling petsa.",
+    "chooseValid": "Pumili ng tamang petsa."
+  },
+  "checkout": {
+    "unitPrice": "Presyo bawat isa",
+    "editPrice": "Baguhin ang presyo para sa bentang ito",
+    "wasPrice": "dati {price}",
+    "resetPrice": "Ibalik",
+    "belowCost": "Mas mababa sa puhunan",
+    "discount": "Diskwento",
+    "discountTooBig": "Mas malaki ang diskwento kaysa sa subtotal.",
+    "subtotal": "Subtotal",
+    "total": "Kabuuan",
+    "addToCart": "Idagdag sa Cart",
+    "updateCart": "I-update ang Cart",
+    "removeFromCart": "Alisin sa Cart",
+    "addDiscount": "Magdagdag",
+    "listPrice": "presyo {price}",
+    "allCategories": "Lahat",
+    "uncategorized": "Iba pa",
+    "walkIn": "Walk-in na Benta",
+    "buyerAccount": "Account ng Mamimili"
+  },
+  "numpad": {
+    "clear": "C",
+    "backspace": "Burahin",
+    "decimal": "Tuldok",
+    "done": "Tapos"
+  },
+  "inventory": {
+    "costPrice": "Puhunan (₱)",
+    "optional": "Opsyonal",
+    "costHint": "Magkano ang puhunan mo sa isa. Ginagamit sa kita at margin sa Analitika.",
+    "marginHint": "Margin sa presyong ito: {pct}%",
+    "unitCost": "Puhunan bawat {unit}",
+    "unitCostFor": "Puhunan bawat isa ng {name}"
+  },
+  "saleStatus": {
+    "reason": "Dahilan (opsyonal)",
+    "saving": "Sine-save…",
+    "cancel": "Kanselahin",
+    "error": "Hindi ma-update ang bentang ito.",
+    "voidedNotice": "Na-void ang bentang ito",
+    "refundedNotice": "Na-refund ang bentang ito",
+    "pending_paymentNotice": "Hinihintay ang kumpirmasyon ng bayad",
+    "cancelledNotice": "Kinansela ang order na ito",
+    "reject": {
+      "action": "Tanggihan ang order",
+      "title": "Tanggihan ang order?",
+      "body": "Kakanselahin ang {amount} na order ng mamimili at ibabalik sa stock ang mga item.",
+      "reasonPlaceholder": "hal. hindi natanggap ang bayad",
+      "confirm": "Tanggihan"
+    },
+    "void": {
+      "action": "I-void",
+      "title": "I-void ang benta?",
+      "body": "Para sa benta na nagkamali ang pagpasok. Aalisin ang {amount} na benta sa ulat at ibabalik sa stock ang mga item.",
+      "reasonPlaceholder": "hal. maling item, nadoble",
+      "confirm": "I-void"
+    },
+    "delete": {
+      "label": "Burahin ang transaksyon",
+      "title": "Burahin ang transaksyon?",
+      "body": "Mavo-void ang {amount} na benta: aalisin ito sa iyong mga ulat at ibabalik sa stock ang mga item. Mananatili ito sa listahan na may markang Voided.",
+      "reasonPlaceholder": "hal. pagsubok lang, nadoble",
+      "confirm": "Burahin"
+    },
+    "refund": {
+      "action": "I-refund",
+      "title": "I-refund ang benta?",
+      "body": "Kapag ibinalik ng mamimili ang mga item. Itatala ang {amount} bilang refund at ibabalik sa stock ang mga item.",
+      "reasonPlaceholder": "hal. sirang item",
+      "confirm": "I-refund"
+    }
+  },
+  "orders": {
+    "pendingTitle": "Mga order na kukumpirmahin",
+    "nudgeOne": "1 order ang naghihintay ng kumpirmasyon ng bayad",
+    "nudgeMany": "{count} order ang naghihintay ng kumpirmasyon ng bayad",
+    "empty": "Walang order na naghihintay ng kumpirmasyon.",
+    "loading": "Nilo-load ang mga order…",
+    "confirmPayment": "Kumpirmahin ang bayad",
+    "confirming": "Kinukumpirma…",
+    "confirmError": "Hindi makumpirma ang bayad.",
+    "proofTitle": "Screenshot ng bayad",
+    "noProof": "Wala pang screenshot ng bayad — makakapagkumpirma ka kapag nag-upload na ang mamimili.",
+    "sellerCashHint": "Cash na order — kumpirmahin kapag nabayaran ka na.",
+    "viewFull": "I-tap para makita nang buo",
+    "orderTitle": "Order",
+    "loadError": "Hindi ma-load ang order na ito.",
+    "awaitingTitle": "Naipadala ang order — hinihintay ang bayad",
+    "payTo": "Magbayad sa seller gamit ang isa sa mga ito",
+    "noPayoutAccounts": "Wala pang payment account ang seller — i-message sila para sa detalye ng bayad.",
+    "uploadProof": "I-upload ang screenshot ng bayad",
+    "replaceProof": "Palitan ang screenshot",
+    "uploading": "Ina-upload…",
+    "uploadError": "Hindi ma-upload ang screenshot.",
+    "proofSent": "Naipadala ang screenshot — hinihintay ang kumpirmasyon ng seller.",
+    "buyerCashHint": "Magbayad sa seller pagkuha — sila ang magkukumpirma ng order mo.",
+    "cancelOrder": "Kanselahin ang order",
+    "cancelConfirm": "I-tap ulit para kanselahin ang order",
+    "cancelError": "Hindi makansela ang order.",
+    "completedTitle": "Kumpirmado ang bayad — salamat!",
+    "cancelledTitle": "Kinansela ang order na ito",
+    "viewReceipt": "Tingnan ang resibo",
+    "placeOrder": "Mag-order",
+    "placingOrder": "Ipinapadala ang order…",
+    "approve": "Aprubahan ang order",
+    "allPending": "Lahat ng order na aaprubahan",
+    "buyerAccountHint": "Mga online order ng mamimili na naghihintay ng iyong pag-apruba — tingnan ang bayad, saka aprubahan o tanggihan."
+  },
+  "analytics": {
+    "tabs": {
+      "sales": "Benta",
+      "profit": "Kita",
+      "stock": "Stock",
+      "forecast": "Taya"
+    },
+    "loading": "Nilo-load ang analitika…",
+    "loadError": "Hindi ma-load ang analitika.",
+    "vsPrevious": "kumpara sa dati",
+    "noSalesInRange": "Wala pang benta sa panahong ito.",
+    "noProducts": "Wala pang aktibong produkto.",
+    "noSalesYet": "Wala pang benta",
+    "netSales": "Net na benta",
+    "transactions": "Transaksyon",
+    "unitsSold": "Nabentang yunit",
+    "avgTransaction": "Karaniwang benta",
+    "trendLast7": "Net na benta · huling 7 araw",
+    "trendBy": {
+      "day": "Net na benta bawat araw",
+      "week": "Net na benta bawat linggo",
+      "month": "Net na benta bawat buwan"
+    },
+    "topProducts": "Top 5 produkto",
+    "byRevenue": "Halaga",
+    "byQuantity": "Dami",
+    "byWeekday": "Karaniwang benta bawat araw ng linggo",
+    "byHour": "Karaniwang benta bawat oras",
+    "patternHint": "Karaniwan sa huling {weeks} linggo",
+    "weekdays": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Miy",
+      "thu": "Huw",
+      "fri": "Biy",
+      "sat": "Sab",
+      "sun": "Lin"
+    },
+    "grossProfit": "Kabuuang kita",
+    "grossMargin": "Margin",
+    "cogs": "Puhunan ng nabenta",
+    "costCoverage": "Benta na may puhunan",
+    "partialCost": "{pct} lang ng mga benta ang may puhunan, kaya iyon lang ang sakop ng kita.",
+    "noCost": "Ilagay ang puhunan ng mga produkto para makita ang kita at margin.",
+    "addCosts": "Ilagay ang puhunan",
+    "noCostShort": "Walang puhunan",
+    "breakdown": "Mula benta hanggang kita",
+    "breakdownHint": "Benta sa listahang presyo, bawas ang binagong presyo, diskwento at refund. Hindi kasama ang na-void.",
+    "grossSales": "Benta (listahang presyo)",
+    "priceAdjustments": "Binagong presyo sa checkout",
+    "discounts": "Diskwento",
+    "refunds": "Refund",
+    "cogsCosted": "Puhunan ng nabenta",
+    "topByProfit": "Top 5 sa kita",
+    "topByProfitHint": "Bawat produkto, bago ang diskwento sa buong benta.",
+    "revenueLabel": "{amount} na benta",
+    "marginLabel": "{pct} margin",
+    "needAttention": "Kailangang i-restock",
+    "stockValueTotal": "Halaga ng stock sa puhunan",
+    "inStock": "{amount} sa stock",
+    "daysLeft": "~{days} araw na lang",
+    "turnover": "ikot {value}×/30a",
+    "stockValue": "halagang {amount}",
+    "suggestedReorder": "Mungkahing i-order: {amount}",
+    "restock": "I-restock",
+    "status": {
+      "out_of_stock": "Ubos na",
+      "stockout_risk": "Mauubos na",
+      "low": "Kaunti na",
+      "slow_moving": "Mabagal mabenta",
+      "overstocked": "Sobra ang stock",
+      "healthy": "Maayos"
+    },
+    "statusHint": {
+      "out_of_stock": "Wala nang maibebenta.",
+      "stockout_risk": "Sa kasalukuyang bilis, mauubos ito sa loob ng 7 araw.",
+      "low": "Nasa o mas mababa sa iyong low-stock na alerto.",
+      "slow_moving": "Walang benta sa huling 14 na araw pero may stock pa.",
+      "overstocked": "Higit 60 araw na stock sa kasalukuyang bilis.",
+      "healthy": "Balanse ang stock at benta."
+    },
+    "forecastAccuracy": "Katumpakan ng taya",
+    "forecastAccuracyHint": "Taya noong nakaraang linggo kumpara sa aktwal",
+    "runOutWithinWeek": "Baka maubos ngayong linggo",
+    "expectedDemand": "Inaasahang benta",
+    "next7": "7 araw",
+    "next14": "14 araw",
+    "forecastMethod": "Batay sa benta sa huling 7 at 30 araw. Tantya lamang, hindi garantiya.",
+    "forecastMethodWeekday": "Batay sa benta sa huling 7 at 30 araw, inayon sa iyong mabenta at matumal na araw. Tantya lamang, hindi garantiya.",
+    "fallbackNote": "magaspang na tantya (kaunting datos)",
+    "reorderSoon": "Mag-order na",
+    "confidence": {
+      "high": "Mataas na tiwala",
+      "medium": "Katamtamang tiwala",
+      "low": "Mababang tiwala"
+    },
+    "loadingTransactions": "Nilo-load ang mga transaksyon…",
+    "loadTransactionsError": "Hindi ma-load ang mga transaksyon.",
+    "showingLatest": "Ipinapakita ang pinakabagong {shown} sa {total} na transaksyon."
+  },
+  "insights": {
+    "heading": "Mga napansin",
+    "urgent": "{count} agaran",
+    "showAll": "Ipakita lahat ({count})",
+    "showFewer": "Ipakita ang kaunti",
+    "severity": {
+      "high": "Agaran",
+      "medium": "Tingnan",
+      "low": "Paalala"
+    },
+    "actions": {
+      "check_stock_for_demand": "Siguraduhing sapat ang stock kung magtuloy ito",
+      "review_prices_and_stock": "Tingnan ang stock, presyo at kung ano ang nagbago",
+      "review_prices": "Suriin ang presyo at puhunan",
+      "raise_price": "Taasan ang presyo o suriin ang puhunan",
+      "add_cost": "Ilagay ang puhunan nito",
+      "reorder": "Mag-restock na",
+      "promote_or_pause_restock": "Huwag munang mag-restock o mag-promo",
+      "stock_up": "Mag-stock bago maubos"
+    },
+    "sales_spike": {
+      "title": "Tumaas ng {pct} ang benta kahapon",
+      "body": "{actualCents} kumpara sa karaniwang {usualCents} tuwing {weekday}."
+    },
+    "sales_drop": {
+      "title": "Bumaba ng {pct} ang benta kahapon",
+      "body": "{actualCents} kumpara sa karaniwang {usualCents} tuwing {weekday}."
+    },
+    "stockout_risk": {
+      "title": "Mauubos ang {product} sa ~{days} araw",
+      "body": "Sa kasalukuyang bilis. Mungkahing i-order: {reorder}."
+    },
+    "low_margin": {
+      "title": "{marginPct}% lang ang margin",
+      "body": "Mas mababa sa {thresholdPct}% ang margin mo sa huling 30 araw."
+    },
+    "below_cost": {
+      "title": "Ang {product} ay nasa o mas mababa sa puhunan",
+      "body": "Presyo {priceCents}, puhunan {costCents}."
+    },
+    "missing_cost": {
+      "title": "Walang puhunan ang {product}",
+      "body": "{revenueSharePct}% ng benta mo ({revenueCents}) sa 30 araw, kaya hindi ito kasama sa kita."
+    },
+    "emerging_bestseller": {
+      "title": "Bumibilis ang benta ng {product}",
+      "body": "{unitsLast7Days} ang nabenta sa huling 7 araw kumpara sa mga {weeklyAvgBefore} bawat linggo dati."
+    },
+    "overstock": {
+      "title": "~{days} araw na stock ng {product}",
+      "body": "{stockValueCents} na stock ang nakatengga sa kasalukuyang bilis."
+    }
+  },
+  "buyerTransactions": {
+    "title": "Aking mga Transaksyon",
+    "loading": "Nilo-load ang mga transaksyon…",
+    "loadError": "Hindi ma-load ang iyong mga transaksyon.",
+    "empty": "Wala ka pang nabili — lalabas dito ang iyong mga transaksyon pagkatapos mong bumili."
+  },
+  "messages": {
+    "searchPlaceholder": "Maghanap ayon sa pangalan",
+    "noMatches": "Walang usapang tugma sa \"{query}\".",
+    "orderCard": {
+      "label": "Order",
+      "bought": "Bumili si {name} ng {items}",
+      "proofQuestion": "Narito ang patunay ng bayad — aprubahan o hindi?",
+      "cashQuestion": "Magbabayad ng cash — aprubahan o hindi?",
+      "review": "Suriin at aprubahan",
+      "view": "Tingnan ang order",
+      "approved": "Naaprubahan"
+    }
   }
 }

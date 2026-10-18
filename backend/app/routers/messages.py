@@ -16,6 +16,7 @@ from app.schemas.conversation import (
     ConversationRead,
     MessageCreate,
     MessageListResponse,
+    MessageOrder,
     MessageRead,
 )
 from app.services import messages as messages_service
@@ -121,9 +122,25 @@ def list_messages(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found") from exc
 
     items, total = messages_service.list_messages(db, conversation, page, page_size)
-    return MessageListResponse(
-        items=[MessageRead.model_validate(m) for m in items], total=total, page=page, page_size=page_size
-    )
+    orders = messages_service.orders_for_messages(db, items)
+    buyer = db.get(User, conversation.buyer_id) if orders else None
+
+    def to_read(message):
+        read = MessageRead.model_validate(message)
+        sale = orders.get(message.sale_id)
+        if sale is not None:
+            read.order = MessageOrder(
+                id=sale.id,
+                buyer_name=buyer.full_name,
+                items_summary=messages_service.order_items_summary(sale),
+                total_cents=sale.total_cents,
+                payment_method=sale.payment_method,
+                status=sale.status,
+                payment_proof_url=sale.payment_proof_url,
+            )
+        return read
+
+    return MessageListResponse(items=[to_read(m) for m in items], total=total, page=page, page_size=page_size)
 
 
 @router.post(

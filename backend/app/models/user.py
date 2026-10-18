@@ -55,3 +55,9 @@ class SellerProfile(UUIDPkMixin, Base):
     photo_url: Mapped[str | None] = mapped_column(String, nullable=True)
 
     user: Mapped["User"] = relationship(back_populates="seller_profile")
+    payout_accounts: Mapped[list["SellerPayoutAccount"]] = relationship(  # noqa: F821
+        back_populates="seller_profile",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="[SellerPayoutAccount.is_default.desc(), SellerPayoutAccount.created_at]",
+    )

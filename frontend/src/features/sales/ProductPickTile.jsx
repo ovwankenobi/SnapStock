@@ -1,11 +1,10 @@
 import ProductThumb from "../../components/ProductThumb";
-import { centsToPeso } from "../../lib/format";
+import { centsToPeso, formatQuantity, lineTotalCents } from "../../lib/format";
 import { saleUnitLabel } from "./salesFormat";
 import styles from "./sales.module.css";
 
-export default function ProductPickTile({ product, cartQuantity, onQuantityChange, onOpenWeigh }) {
-  const isWeighed = product.unitType === "grams";
-  const unit = saleUnitLabel(product.unitType);
+export default function ProductPickTile({ product, cartQuantity, onOpenAmount }) {
+  const unit = saleUnitLabel(product.unitType, product.unitLabel);
   const selected = cartQuantity > 0;
 
   return (
@@ -14,29 +13,20 @@ export default function ProductPickTile({ product, cartQuantity, onQuantityChang
       <div>
         <div className={styles["pick-tile-name"]}>{product.name}</div>
         <div className={styles["pick-tile-meta"]}>
-          {centsToPeso(product.priceCents)}/{unit} · {product.stockPieces} {unit} left
+          {centsToPeso(product.priceCents)}/{unit} · {formatQuantity(product.unitType, product.stockPieces)} {unit} left
         </div>
       </div>
-      {isWeighed ? (
-        <button
-          type="button"
-          className={`${styles["pick-weigh-button"]} ${selected ? styles["pick-weigh-button-active"] : ""}`}
-          onClick={onOpenWeigh}
-        >
-          {selected ? `${cartQuantity}g · ${centsToPeso(product.priceCents * cartQuantity)}` : "Tap to enter weight"}
-        </button>
-      ) : (
-        <div className={styles["pick-qty-row"]}>
-          <input
-            className={styles["pick-qty-input"]}
-            inputMode="numeric"
-            placeholder="0"
-            value={cartQuantity || ""}
-            onChange={(e) => onQuantityChange(e.target.value.replace(/[^0-9]/g, ""))}
-          />
-          <div className={styles["pick-qty-suffix"]}>{unit}</div>
-        </div>
-      )}
+      <button
+        type="button"
+        className={`${styles["pick-weigh-button"]} ${selected ? styles["pick-weigh-button-active"] : ""}`}
+        onClick={onOpenAmount}
+      >
+        {selected
+          ? `${formatQuantity(product.unitType, cartQuantity)} ${unit} · ${centsToPeso(
+              lineTotalCents(product.priceCents, cartQuantity, product.unitType),
+            )}`
+          : "Tap to enter amount"}
+      </button>
     </div>
   );
 }

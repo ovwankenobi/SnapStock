@@ -5,6 +5,7 @@ from typing import Literal
 from pydantic import EmailStr, Field, model_validator
 
 from app.schemas.base import CamelModel
+from app.schemas.payout import PayoutAccountRead
 
 Role = Literal["seller", "buyer"]
 BusinessType = Literal["wholesale", "retail", "both"]
@@ -16,6 +17,7 @@ class SellerProfileRead(CamelModel):
     address: str | None = None
     description: str | None = None
     photo_url: str | None = None
+    payout_accounts: list[PayoutAccountRead] = []
 
 
 class UserRead(CamelModel):

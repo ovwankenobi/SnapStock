@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { listProducts, quickSellProduct } from "../../api/products";
+import { listProducts, searchProductsByImage } from "../../api/products";
 import AppLayout from "../../components/AppLayout";
 import EmptyState from "../../components/EmptyState";
 import IconButton from "../../components/IconButton";
+import ImageSearchPanel from "../../components/ImageSearchPanel";
 import LoadingState from "../../components/LoadingState";
 import SearchField from "../../components/SearchField";
 import SegmentedControl from "../../components/SegmentedControl";
 import { sellerNavItems } from "../../lib/nav";
-import { enqueueQuickSell, flushQuickSellQueue, isNetworkError, queueLength } from "../../lib/offlineQueue";
+import { flushQuickSellQueue, queueLength } from "../../lib/offlineQueue";
 import styles from "./inventory.module.css";
 import ProductListItem from "./ProductListItem";
-import QuickSellSheet from "./QuickSellSheet";
+import RestockPicker from "./RestockPicker";
 
 const STOCK_FILTERS = [
   { value: "", label: "All" },
@@ -28,15 +29,31 @@ export default function InventoryPage() {
   const [query, setQuery] = useState("");
   const [stockStatus, setStockStatus] = useState("");
   const [page, setPage] = useState(1);
-  const [sellTarget, setSellTarget] = useState(null);
-  const [sellError, setSellError] = useState("");
+  const location = useLocation();
+  // Analytics links here with { view: "restock" } to open the restock picker directly.
+  const [view, setView] = useState(() => (location.state?.view === "restock" ? "restock" : "list"));
   const [queuedCount, setQueuedCount] = useState(() => queueLength());
-  const [queuedNotice, setQueuedNotice] = useState("");
+  const [showImageSearch, setShowImageSearch] = useState(false);
+  const [imageSearch, setImageSearch] = useState(null); // { query, products }
+  const [imageSearchError, setImageSearchError] = useState("");
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["products", { search: query, stockStatus, page }],
     queryFn: () => listProducts({ search: query, stockStatus, page, pageSize: 24 }),
     placeholderData: (previous) => previous,
+    enabled: !imageSearch,
+  });
+
+  const imageSearchMutation = useMutation({
+    mutationFn: searchProductsByImage,
+    onSuccess: (result) => {
+      setImageSearch({ query: result.query, products: result.results.map((r) => r.product) });
+      setShowImageSearch(false);
+      setImageSearchError("");
+    },
+    onError: (err) => {
+      setImageSearchError(err.response?.data?.detail || "Could not search by photo. Try again.");
+    },
   });
 
   async function syncQueuedSales() {
@@ -45,9 +62,6 @@ export default function InventoryPage() {
     if (flushed > 0) {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["lowStockProducts"] });
-    }
-    if (remaining === 0) {
-      setQueuedNotice("");
     }
   }
 
@@ -58,63 +72,19 @@ export default function InventoryPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const quickSellMutation = useMutation({
-    mutationFn: async ({ id, payload }) => {
-      try {
-        return await quickSellProduct(id, payload);
-      } catch (err) {
-        if (isNetworkError(err)) {
-          const newCount = enqueueQuickSell({ id, payload });
-          setQueuedCount(newCount);
-          return { queued: true };
-        }
-        throw err;
-      }
-    },
-    onMutate: async ({ id, payload }) => {
-      setSellError("");
-      await queryClient.cancelQueries({ queryKey: ["products"] });
-      const previous = queryClient.getQueriesData({ queryKey: ["products"] });
+  const items = imageSearch ? imageSearch.products : data?.items || [];
+  const totalPages = !imageSearch && data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
 
-      queryClient.setQueriesData({ queryKey: ["products"] }, (current) => {
-        if (!current) return current;
-        return {
-          ...current,
-          items: current.items.map((item) =>
-            item.id === id
-              ? { ...item, stockPieces: item.stockPieces - payload.quantity * item.piecesPerUnit }
-              : item,
-          ),
-        };
-      });
-
-      return { previous };
-    },
-    onError: (err, _vars, context) => {
-      context?.previous?.forEach(([key, value]) => queryClient.setQueryData(key, value));
-      setSellError(err.response?.data?.detail || "Could not complete the sale.");
-    },
-    onSuccess: (result) => {
-      setSellTarget(null);
-      setQueuedNotice(result?.queued ? "You're offline — the sale was saved and will sync automatically." : "");
-    },
-    onSettled: (result) => {
-      if (!result?.queued) {
-        queryClient.invalidateQueries({ queryKey: ["products"] });
-        queryClient.invalidateQueries({ queryKey: ["lowStockProducts"] });
-      }
-    },
-  });
-
-  const items = data?.items || [];
-  const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
+  if (view === "restock") {
+    return (
+      <AppLayout navItems={sellerNavItems()} title="Restock Items" backTo={() => setView("list")} hideBottomNav>
+        <RestockPicker onDone={() => setView("list")} />
+      </AppLayout>
+    );
+  }
 
   return (
-    <AppLayout
-      navItems={sellerNavItems()}
-      title="Inventory"
-      headerAction={<IconButton icon="plus" variant="primary" label="Add product" onClick={() => navigate("/inventory/new")} />}
-    >
+    <AppLayout navItems={sellerNavItems()} title="Inventory">
       <div className={styles.page}>
         <div className={styles.toolbar}>
           <SearchField
@@ -122,20 +92,53 @@ export default function InventoryPage() {
             onChange={(value) => {
               setQuery(value);
               setPage(1);
+              setImageSearch(null);
             }}
             placeholder="Search products"
           />
+          <IconButton icon="camera" label="Search by photo" onClick={() => setShowImageSearch(true)} />
         </div>
 
-        <div className={styles.toolbar}>
-          <SegmentedControl
-            options={STOCK_FILTERS}
-            value={stockStatus}
-            onChange={(value) => {
-              setStockStatus(value);
-              setPage(1);
+        {showImageSearch && (
+          <ImageSearchPanel
+            hint="Snap or upload a photo, then tell us what it is — we'll find it in your stock."
+            isSubmitting={imageSearchMutation.isPending}
+            error={imageSearchError}
+            onClose={() => setShowImageSearch(false)}
+            onSubmit={(file, text) => {
+              setImageSearchError("");
+              imageSearchMutation.mutate({ file, query: text });
             }}
           />
+        )}
+
+        {imageSearch ? (
+          <div className={styles["active-filter"]}>
+            <span>Photo search: "{imageSearch.query}"</span>
+            <button type="button" onClick={() => setImageSearch(null)}>
+              Clear
+            </button>
+          </div>
+        ) : (
+          <div className={styles.toolbar}>
+            <SegmentedControl
+              options={STOCK_FILTERS}
+              value={stockStatus}
+              onChange={(value) => {
+                setStockStatus(value);
+                setPage(1);
+              }}
+            />
+          </div>
+        )}
+
+        <div className={styles["add-actions"]}>
+          <button type="button" className={styles["add-button"]} onClick={() => navigate("/inventory/new")}>
+            + Add Product
+          </button>
+          <button type="button" className={styles["add-button"]} onClick={() => setView("restock")}>
+            + Restock Items
+          </button>
         </div>
 
         {queuedCount > 0 && (
@@ -143,19 +146,16 @@ export default function InventoryPage() {
             {queuedCount} sale{queuedCount === 1 ? "" : "s"} pending sync — will send automatically when you're back online.
           </div>
         )}
-        {queuedNotice && (
-          <div className={styles["queue-banner"]} role="status">
-            {queuedNotice}
-          </div>
-        )}
 
-        {isLoading && <LoadingState message="Loading products…" />}
-        {isError && <EmptyState message="Could not load products." />}
-        {!isLoading && !isError && items.length === 0 && <EmptyState message="No products found." />}
+        {!imageSearch && isLoading && <LoadingState message="Loading products…" />}
+        {!imageSearch && isError && <EmptyState message="Could not load products." />}
+        {(imageSearch || (!isLoading && !isError)) && items.length === 0 && (
+          <EmptyState message={imageSearch ? "No matches for that photo search." : "No products found."} />
+        )}
 
         <div className={styles.grid}>
           {items.map((product) => (
-            <ProductListItem key={product.id} product={product} onQuickSell={setSellTarget} />
+            <ProductListItem key={product.id} product={product} />
           ))}
         </div>
 
@@ -173,19 +173,6 @@ export default function InventoryPage() {
           </div>
         )}
       </div>
-
-      {sellTarget && (
-        <QuickSellSheet
-          product={sellTarget}
-          isSubmitting={quickSellMutation.isPending}
-          error={sellError}
-          onClose={() => {
-            setSellTarget(null);
-            setSellError("");
-          }}
-          onConfirm={(payload) => quickSellMutation.mutate({ id: sellTarget.id, payload })}
-        />
-      )}
     </AppLayout>
   );
 }

@@ -31,11 +31,11 @@ those are kept separate).
 ```
 backend/
 ├── app/
-│   ├── core/         # auth deps (get_current_user, require_seller, require_buyer), security, rate limiting
+│   ├── core/         # auth deps (get_current_user, require_seller, require_buyer), security, rate limiting, business_time
 │   ├── models/        # SQLAlchemy models — one file per domain
 │   ├── routers/       # FastAPI routers — auth, request/response wiring only
 │   ├── schemas/        # Pydantic request/response models (CamelModel base)
-│   ├── services/       # business logic — inventory, sales, catalog, messages, analytics
+│   ├── services/       # business logic — inventory, sales, catalog, messages, payouts, uploads, analytics/ (package)
 │   ├── config.py       # Settings (env-driven)
 │   ├── database.py     # SQLAlchemy engine/session
 │   └── main.py         # FastAPI app, router mounting, CORS, rate limit handler
@@ -46,22 +46,25 @@ backend/
 frontend/
 ├── src/
 │   ├── api/            # axios wrappers, one file per backend resource
-│   ├── features/       # auth, inventory, sales, dashboard, messages, buyer — feature-scoped pages
+│   ├── features/       # auth, inventory, sales, analytics, dashboard, messages, payouts, buyer
 │   ├── components/     # shared UI primitives (Badge, StatTile, QuantityStepper, ...)
 │   ├── hooks/
-│   └── lib/            # apiClient, i18n, offlineQueue, format helpers
-└── index.html
+│   └── lib/            # apiClient, i18n, nav, dates, offlineQueue, format helpers
+├── index.html
+└── vite.config.js      # dev server proxy: /api and /uploads → backend on 6767
 
 docs-technical/   # this site
 docs-manuals/     # standalone Word-conversion-ready user manuals (sellers, buyers)
+docker-compose.yml # local Postgres 16 for development
 ```
 
 ## Three app surfaces, one backend
 
-- **Seller app** — inventory management, quick-sell, itemized checkout, sales history/analytics,
-  messaging. Routes gated by `ProtectedRoute role="seller"`.
-- **Buyer app** — catalog browsing, placing orders, digital receipts, messaging sellers. Routes
-  gated by `ProtectedRoute role="buyer"`.
+- **Seller app** — inventory (categories, costs, bulk restock), walk-in checkout, approving
+  buyers' online orders, transactions, the analytics hub, payout accounts, messaging. Routes gated
+  by `ProtectedRoute role="seller"`.
+- **Buyer app** — catalog browsing, placing orders and uploading payment screenshots, digital
+  receipts, messaging sellers. Routes gated by `ProtectedRoute role="buyer"`.
 - **Backend API** — a single FastAPI app (`app/main.py`) exposing all routers under `/api/v1`,
   backed by one shared PostgreSQL database. See [Architecture Overview](architecture/overview.md).
 

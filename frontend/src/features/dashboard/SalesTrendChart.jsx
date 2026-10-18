@@ -1,29 +1,48 @@
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
+import { formatDate } from "../../lib/dates";
 import { centsToPeso } from "../../lib/format";
 import styles from "./dashboard.module.css";
 
-function formatDayLabel(isoDate) {
-  return new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(new Date(`${isoDate}T00:00:00`));
+function bucketLabel(isoDate, granularity, pointCount) {
+  if (granularity === "month") return formatDate(isoDate, { month: "short" });
+  if (granularity === "day" && pointCount <= 7) return formatDate(isoDate, { weekday: "short" });
+  return formatDate(isoDate, { month: "short", day: "numeric" });
 }
 
-function ChartTooltip({ active, payload, label }) {
+function tooltipLabel(isoDate, granularity) {
+  if (granularity === "month") return formatDate(isoDate, { month: "long", year: "numeric" });
+  const day = formatDate(isoDate, { weekday: "short", month: "short", day: "numeric" });
+  return granularity === "week" ? `Week of ${day}` : day;
+}
+
+function ChartTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
+  const point = payload[0].payload;
   return (
     <div className={styles["trend-tooltip"]}>
-      <div className={styles["trend-tooltip-date"]}>{label}</div>
-      <div className={styles["trend-tooltip-value"]}>{centsToPeso(payload[0].value)}</div>
+      <div className={styles["trend-tooltip-date"]}>{point.tooltipLabel}</div>
+      <div className={styles["trend-tooltip-value"]}>{centsToPeso(point.revenueCents)}</div>
+      <div className={styles["trend-tooltip-date"]}>
+        {point.saleCount} sale{point.saleCount === 1 ? "" : "s"}
+      </div>
     </div>
   );
 }
 
-export default function SalesTrendChart({ points }) {
-  const data = (points || []).map((point) => ({ ...point, label: formatDayLabel(point.date) }));
+// Net sales per bucket (one series, so no legend — the title names it).
+export default function SalesTrendChart({ points, granularity = "day", title = "Sales Trend", height = 180 }) {
+  const list = points || [];
+  const data = list.map((point) => ({
+    ...point,
+    label: bucketLabel(point.date, granularity, list.length),
+    tooltipLabel: tooltipLabel(point.date, granularity),
+  }));
 
   return (
     <div className={styles["trend-card"]}>
-      <div className={styles["trend-heading"]}>Sales Trend</div>
-      <ResponsiveContainer width="100%" height={180}>
+      <div className={styles["trend-heading"]}>{title}</div>
+      <ResponsiveContainer width="100%" height={height}>
         <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="dashboardTrendFill" x1="0" y1="0" x2="0" y2="1">
@@ -37,15 +56,18 @@ export default function SalesTrendChart({ points }) {
             tick={{ fill: "var(--color-muted)", fontSize: 11 }}
             axisLine={{ stroke: "var(--color-border)" }}
             tickLine={false}
+            interval="preserveStartEnd"
+            minTickGap={12}
           />
           <YAxis hide />
-          <Tooltip content={<ChartTooltip />} />
+          <Tooltip content={<ChartTooltip />} cursor={{ stroke: "var(--color-muted)", strokeWidth: 1 }} />
           <Area
             type="monotone"
             dataKey="revenueCents"
             stroke="var(--color-primary)"
             strokeWidth={2}
             fill="url(#dashboardTrendFill)"
+            activeDot={{ r: 4, stroke: "var(--color-surface)", strokeWidth: 2 }}
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -9,7 +9,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
 from app.core.rate_limit import limiter
-from app.routers import analytics, auth, catalog, inventory, messages, sales
+from app.routers import analytics, auth, catalog, inventory, messages, payouts, sales
 
 app = FastAPI(title="Public Market POS")
 
@@ -40,6 +40,7 @@ app.include_router(sales.router, prefix="/api/v1")
 app.include_router(catalog.router, prefix="/api/v1")
 app.include_router(analytics.router, prefix="/api/v1")
 app.include_router(messages.router, prefix="/api/v1")
+app.include_router(payouts.router, prefix="/api/v1")
 
 
 @app.get("/api/v1/health")
