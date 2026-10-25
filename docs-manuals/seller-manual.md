@@ -137,6 +137,12 @@ number as the source of truth even when you sell the same stock two different wa
   > **Starting Stock** of `250` pieces. When you later sell 2 bundles, the app deducts
   > `2 × 25 = 50` pieces, leaving `200` pieces — shown to you as **8 bundles** remaining.
 
+  A bundle product can also be **sold per piece** (*tingi*). On **New Sale → Add Items** the
+  product shows *"Can also be sold per piece"*; tap it and switch the keypad from **Bundle** to
+  **Per piece**. One piece costs the bundle price ÷ pieces per bundle (₱50 bundle of 10 → ₱5 each),
+  and you can still change the price in the cart. Buyers get the same choice when they order online.
+  Selling 3 pieces deducts exactly 3 pieces, so stock may show as e.g. **7 bundles + 22 pc**.
+
 - **Per Unit** — priced and sold by a measurement you choose: tap a preset (**kg**, **g**, **m**,
   **cm**, **ft**, **yd**, **L**) or type your own (e.g. `sack`, `gallon`). The **Price** is per one
   whole unit (e.g. ₱120 per yd), and you can sell, restock, and set stock in fractions up to 3

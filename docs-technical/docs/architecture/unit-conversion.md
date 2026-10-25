@@ -31,6 +31,22 @@ pieces of bread) and `stock_pieces = 250` (10 bundles on hand).
 Bundle"** and only shows it for `bundle` products — `piece` and `measure` products always send
 `pieces_per_unit = 1` and the field is hidden.
 
+## Selling a bundle per piece
+
+A sale line for a `bundle` product can set `byPiece: true` (`SaleItemCreate.by_piece`, and
+`BuyRequest.by_piece` for buyer orders). `services.inventory.build_sale_item` then snapshots it as a
+**piece** line: `unit_type_snapshot = piece`, list price and cost =
+`per_piece_cents(price, pieces_per_unit)` (integer half-up, so ₱100 / 3 = 3333 cents), and
+`pieces_deducted = quantity`. Receipts, void/refund/cancel and the forecast read the snapshot and
+`pieces_deducted`, so they need no special case. `by_piece` on a non-bundle product raises
+`InvalidSaleUnitError` (400). `create_sale` sums `pieces_deducted` per product across lines before
+deducting, so a bundle line and a piece line of the same product are validated together.
+
+On the frontend, `saleLineUnit(product, byPiece)` in `features/sales/salesFormat.js` gives a line's
+price, cost and unit, and the New Sale cart keys lines by product **and** mode.
+
+Analytics "units sold" still sums `sale_items.quantity`, so a piece line counts like a bundle there.
+
 ## Measured products
 
 For `unit_type = "measure"` (meat by the kg, fabric by the yard, rope by the meter, …) the seller

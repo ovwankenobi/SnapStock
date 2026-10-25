@@ -23,8 +23,17 @@ def line_total_cents(price_cents: int, quantity: int, unit_type: UnitType) -> in
     return (quantity * price_cents * 2 + scale) // (2 * scale)
 
 
+def per_piece_cents(cents: int, pieces_per_unit: int) -> int:
+    """A bundle price or cost split into one piece, with integer half-up rounding."""
+    return (cents * 2 + pieces_per_unit) // (2 * pieces_per_unit)
+
+
 class InsufficientStockError(Exception):
     pass
+
+
+class InvalidSaleUnitError(Exception):
+    """Only bundle products can be sold by the piece."""
 
 
 class ProductNotFoundError(Exception):
@@ -39,32 +48,48 @@ def set_product_cost(db: Session, product: Product, cost_cents: int | None, sour
     db.add(ProductCostHistory(product_id=product.id, cost_cents=cost_cents, source=source))
 
 
+def pieces_for(product: Product, quantity: int, by_piece: bool = False) -> int:
+    """Stock pieces a sale line of `quantity` selling units takes."""
+    return quantity if by_piece else quantity * product.pieces_per_unit
+
+
 def build_sale_item(
-    sale_id: uuid.UUID | None, product: Product, quantity: int, unit_price_cents: int | None = None
+    sale_id: uuid.UUID | None,
+    product: Product,
+    quantity: int,
+    unit_price_cents: int | None = None,
+    by_piece: bool = False,
 ) -> SaleItem:
     """A sale line that snapshots name, list price, charged price and cost at write time.
 
     `unit_price_cents` is the price the seller agreed during the transaction; it
     defaults to the product's current price and never changes the product itself.
+    `by_piece` sells single pieces of a bundle product: the line is snapshotted as a
+    piece line priced (and costed) at the bundle's price divided by its pieces.
     """
-    charged = product.price_cents if unit_price_cents is None else unit_price_cents
+    if by_piece and product.unit_type != UnitType.BUNDLE:
+        raise InvalidSaleUnitError("Only bundle products can be sold by the piece")
+    list_price = product.price_cents
+    cost = product.cost_cents
+    unit_type = product.unit_type
+    if by_piece:
+        list_price = per_piece_cents(list_price, product.pieces_per_unit)
+        cost = per_piece_cents(cost, product.pieces_per_unit) if cost is not None else None
+        unit_type = UnitType.PIECE
+    charged = list_price if unit_price_cents is None else unit_price_cents
     return SaleItem(
         sale_id=sale_id,
         product_id=product.id,
         product_name_snapshot=product.name,
-        list_price_cents_snapshot=product.price_cents,
+        list_price_cents_snapshot=list_price,
         unit_price_cents_snapshot=charged,
-        unit_cost_cents_snapshot=product.cost_cents,
-        cost_total_cents=(
-            line_total_cents(product.cost_cents, quantity, product.unit_type)
-            if product.cost_cents is not None
-            else None
-        ),
+        unit_cost_cents_snapshot=cost,
+        cost_total_cents=line_total_cents(cost, quantity, unit_type) if cost is not None else None,
         quantity=quantity,
-        unit_type_snapshot=product.unit_type,
+        unit_type_snapshot=unit_type,
         unit_label_snapshot=product.unit_label,
-        pieces_deducted=quantity * product.pieces_per_unit,
-        line_total_cents=line_total_cents(charged, quantity, product.unit_type),
+        pieces_deducted=pieces_for(product, quantity, by_piece),
+        line_total_cents=line_total_cents(charged, quantity, unit_type),
     )
 
 

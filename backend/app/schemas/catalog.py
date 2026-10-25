@@ -60,6 +60,8 @@ class ImageSearchResponse(CamelModel):
 class BuyRequest(CamelModel):
     quantity: int = Field(gt=0)
     payment_method: PaymentMethod
+    # Order single pieces of a bundle product instead of whole bundles.
+    by_piece: bool = False
 
 
 class BuyerReceiptItem(CamelModel):

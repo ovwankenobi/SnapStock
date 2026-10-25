@@ -27,7 +27,7 @@ Create a sale — either itemized (cart of products) or a walk-in lump sum with 
 | `saleType` | `itemized` \| `walk_in` | |
 | `buyerId` | UUID \| null | **required** if `itemized`; **must be null** if `walk_in` |
 | `paymentMethod` | `cash`\|`gcash`\|`maya`\|`bank_transfer`\|`other` | |
-| `items` | `{ productId, quantity, unitPriceCents? }[]` | required (non-empty) if `itemized`. `unitPriceCents` is the price agreed during the sale; omitted = the product's current price. It never changes the product. |
+| `items` | `{ productId, quantity, unitPriceCents?, byPiece? }[]` | required (non-empty) if `itemized`. `unitPriceCents` is the price agreed during the sale; omitted = the product's current price. It never changes the product. `byPiece: true` sells single pieces of a `bundle` product at bundle price ÷ pieces per bundle (400 for other unit types); see [Unit Conversion](../architecture/unit-conversion.md). `POST /catalog/products/{id}/order` takes the same optional `byPiece`. |
 | `note` | string \| null | |
 | `totalCents` | int \| null | only for a walk-in sale with **no** items (manual lump-sum amount); mutually exclusive with `items` |
 | `discountCents` | int, default 0 | sale-level amount off the subtotal; only with `items`, and at most the subtotal |

@@ -13,6 +13,8 @@ class SaleItemCreate(CamelModel):
     quantity: int = Field(gt=0)
     # The price agreed during the sale; omitted = the product's current price.
     unit_price_cents: int | None = Field(default=None, ge=0)
+    # Sell single pieces of a bundle product (priced at the bundle price / pieces per bundle).
+    by_piece: bool = False
 
 
 class SaleCreate(CamelModel):

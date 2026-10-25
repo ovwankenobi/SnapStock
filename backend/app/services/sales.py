@@ -12,7 +12,7 @@ from app.models.sale import PaymentMethod, Sale, SaleStatus, SaleType
 from app.models.stock_movement import StockMovementReason
 from app.models.user import User, UserRole
 from app.services import uploads as uploads_service
-from app.services.inventory import apply_stock_change, build_sale_item
+from app.services.inventory import InvalidSaleUnitError, apply_stock_change, build_sale_item  # noqa: F401
 
 # Excludes 0/O and 1/I, which are easy to misread on a printed receipt.
 RECEIPT_CODE_ALPHABET = "".join(c for c in string.ascii_uppercase + string.digits if c not in "0O1I")
@@ -62,13 +62,14 @@ def create_sale(
     sale_type: SaleType,
     buyer_id: uuid.UUID | None,
     payment_method: PaymentMethod,
-    items: list[tuple[uuid.UUID, int, int | None]],
+    items: list[tuple[uuid.UUID, int, int | None, bool]],
     note: str | None,
     total_cents_override: int | None,
     discount_cents: int = 0,
     status: SaleStatus = SaleStatus.COMPLETED,
 ) -> Sale:
-    """Create a sale. Each item is (product_id, quantity, charged unit price or None for the list price).
+    """Create a sale. Each item is (product_id, quantity, charged unit price or None for the
+    list price, by_piece), where by_piece sells single pieces of a bundle product.
 
     A `pending_payment` sale (a buyer's order) deducts stock the same way, which
     reserves it until the seller confirms payment or the order is cancelled.
@@ -78,26 +79,29 @@ def create_sale(
         if buyer is None or buyer.role != UserRole.BUYER:
             raise BuyerNotFoundError("Buyer not found")
 
-    # Aggregate by product first so stock is validated for every line before
-    # anything is deducted, even if the same product appears on multiple lines.
-    aggregated: dict[uuid.UUID, int] = {}
-    for product_id, quantity, _ in items:
-        aggregated[product_id] = aggregated.get(product_id, 0) + quantity
-
     products: dict[uuid.UUID, Product] = {}
-    for product_id, quantity in aggregated.items():
+    for product_id, *_ in items:
+        if product_id in products:
+            continue
         product = db.get(Product, product_id)
         if product is None or product.seller_id != seller_id or not product.is_active:
             raise ProductNotFoundError(f"Product {product_id} not found")
-        pieces_needed = quantity * product.pieces_per_unit
-        if product.stock_pieces < pieces_needed:
-            raise InsufficientStockError(f"Not enough stock for {product.name}")
         products[product_id] = product
 
+    # Build every line (which checks by-piece is allowed) and sum the pieces each product
+    # needs, so stock is validated for every line before anything is deducted, even if the
+    # same product appears on several lines (e.g. one bundle line and one piece line).
     sale_items = [
-        build_sale_item(None, products[product_id], quantity, unit_price_cents)
-        for product_id, quantity, unit_price_cents in items
+        build_sale_item(None, products[product_id], quantity, unit_price_cents, by_piece)
+        for product_id, quantity, unit_price_cents, by_piece in items
     ]
+    pieces_needed: dict[uuid.UUID, int] = {}
+    for item in sale_items:
+        pieces_needed[item.product_id] = pieces_needed.get(item.product_id, 0) + item.pieces_deducted
+    for product_id, pieces in pieces_needed.items():
+        if products[product_id].stock_pieces < pieces:
+            raise InsufficientStockError(f"Not enough stock for {products[product_id].name}")
+
     subtotal_cents = sum(item.line_total_cents for item in sale_items) if items else total_cents_override
     if discount_cents and not items:
         raise InvalidDiscountError("A discount needs line items")

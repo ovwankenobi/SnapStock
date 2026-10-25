@@ -82,7 +82,9 @@ def create_sale(
             sale_type=payload.sale_type,
             buyer_id=payload.buyer_id,
             payment_method=payload.payment_method,
-            items=[(item.product_id, item.quantity, item.unit_price_cents) for item in payload.items],
+            items=[
+                (item.product_id, item.quantity, item.unit_price_cents, item.by_piece) for item in payload.items
+            ],
             note=payload.note,
             total_cents_override=payload.total_cents,
             discount_cents=payload.discount_cents,
@@ -93,7 +95,11 @@ def create_sale(
     except sales_service.ProductNotFoundError as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
-    except (sales_service.InsufficientStockError, sales_service.InvalidDiscountError) as exc:
+    except (
+        sales_service.InsufficientStockError,
+        sales_service.InvalidDiscountError,
+        sales_service.InvalidSaleUnitError,
+    ) as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 

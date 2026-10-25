@@ -210,6 +210,9 @@
     "chooseValid": "Pumili ng tamang petsa."
   },
   "checkout": {
+    "sellByBundle": "Bundle ({pieces} pc)",
+    "sellByPiece": "Tingi (bawat piraso)",
+    "alsoPerPiece": "Puwede ring itingi · {price}/pc",
     "unitPrice": "Presyo bawat isa",
     "editPrice": "Baguhin ang presyo para sa bentang ito",
     "wasPrice": "dati {price}",

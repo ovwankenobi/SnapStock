@@ -1,4 +1,23 @@
-import { formatQuantity, isMeasured, unitSuffix } from "../../lib/format";
+import { formatQuantity, isMeasured, perPieceCents, unitSuffix } from "../../lib/format";
+
+// How a product is priced and counted on one sale line. A bundle sold `byPiece` becomes a
+// piece line at the bundle price / pieces per bundle (mirrors backend build_sale_item).
+export function saleLineUnit(product, byPiece = false) {
+  if (byPiece) {
+    return {
+      unitType: "piece",
+      unitLabel: null,
+      priceCents: perPieceCents(product.priceCents, product.piecesPerUnit),
+      costCents: perPieceCents(product.costCents, product.piecesPerUnit),
+    };
+  }
+  return {
+    unitType: product.unitType,
+    unitLabel: product.unitLabel,
+    priceCents: product.priceCents,
+    costCents: product.costCents,
+  };
+}
 
 const PAYMENT_LABELS = {
   cash: "Cash",

@@ -20,6 +20,27 @@ export function isMeasured(unitType) {
   return unitType === "measure";
 }
 
+export function isBundle(unitType) {
+  return unitType === "bundle";
+}
+
+// One piece of a bundle: bundle price (or cost) / pieces per bundle, half-up.
+// Mirrors backend services.inventory.per_piece_cents.
+export function perPieceCents(cents, piecesPerUnit) {
+  if (cents == null) return null;
+  const pieces = piecesPerUnit || 1;
+  return Math.floor((cents * 2 + pieces) / (2 * pieces));
+}
+
+// Bundle stock (always stored in pieces) as "8 bundles + 3 pc".
+export function formatBundleStock(stockPieces, piecesPerUnit) {
+  const pieces = piecesPerUnit || 1;
+  const bundles = Math.floor(stockPieces / pieces);
+  const loose = stockPieces % pieces;
+  const bundleText = `${bundles} bundle${bundles === 1 ? "" : "s"}`;
+  return loose ? `${bundleText} + ${loose} pc` : bundleText;
+}
+
 export function unitSuffix(unitType, unitLabel) {
   if (isMeasured(unitType)) return unitLabel || "unit";
   return UNIT_SUFFIX[unitType] || unitType;

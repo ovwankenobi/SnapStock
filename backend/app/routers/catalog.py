@@ -169,13 +169,13 @@ def buy_product(
             sale_type=SaleType.ITEMIZED,
             buyer_id=buyer.id,
             payment_method=payload.payment_method,
-            items=[(product.id, payload.quantity, None)],
+            items=[(product.id, payload.quantity, None, payload.by_piece)],
             note=None,
             total_cents_override=None,
             # Reserves the stock; it counts as a sale once the seller confirms payment.
             status=SaleStatus.PENDING_PAYMENT,
         )
-    except sales_service.InsufficientStockError as exc:
+    except (sales_service.InsufficientStockError, sales_service.InvalidSaleUnitError) as exc:
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
     except sales_service.ProductNotFoundError as exc:

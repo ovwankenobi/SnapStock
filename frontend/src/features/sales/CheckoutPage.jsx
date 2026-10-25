@@ -18,13 +18,18 @@ import OrderApproval from "./OrderApproval";
 import PaymentSheet from "./PaymentSheet";
 import ProductPickTile from "./ProductPickTile";
 import QuantityPadSheet from "./QuantityPadSheet";
-import { formatShortTimestamp, saleQuantityLabel, saleUnitLabel } from "./salesFormat";
+import { formatShortTimestamp, saleLineUnit, saleQuantityLabel, saleUnitLabel } from "./salesFormat";
 import styles from "./sales.module.css";
 import SalesHistoryRow from "./SalesHistoryRow";
 import { usePendingOrders } from "./usePendingOrders";
 
 // Picker tab for products that have no category.
 const UNCATEGORIZED = "__none__";
+
+// One cart line per product and sell mode, so a bundle product can have a bundle line and a by-piece line.
+function cartKey(productId, byPiece) {
+  return `${productId}:${byPiece ? "piece" : "unit"}`;
+}
 
 export default function CheckoutPage() {
   const navigate = useNavigate();
@@ -42,8 +47,8 @@ export default function CheckoutPage() {
   const [cart, setCart] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [showPaymentSheet, setShowPaymentSheet] = useState(false);
-  // The product whose quantity keypad is open.
-  const [padProductId, setPadProductId] = useState(null);
+  // The quantity keypad that is open: { productId, byPiece } (byPiece = the mode it opens in).
+  const [pad, setPad] = useState(null);
   const [submitError, setSubmitError] = useState("");
   const [discountCents, setDiscountCents] = useState(0);
   // Category tab on the Add Items picker; "" = all products.
@@ -79,19 +84,23 @@ export default function CheckoutPage() {
     .map((entry) => {
       const product = products.find((p) => p.id === entry.productId);
       if (!product) return null;
-      // A price the seller agreed for this sale only; null = the product's list price.
-      const unitPriceCents = entry.unitPriceCents ?? product.priceCents;
+      // A bundle product sold by the piece is its own line, priced per piece.
+      const lineUnit = saleLineUnit(product, entry.byPiece);
+      // A price the seller agreed for this sale only; null = the line's list price.
+      const unitPriceCents = entry.unitPriceCents ?? lineUnit.priceCents;
       return {
-        id: entry.productId,
+        id: entry.key,
+        productId: entry.productId,
+        byPiece: entry.byPiece,
         name: product.name,
-        listPriceCents: product.priceCents,
-        costCents: product.costCents,
+        listPriceCents: lineUnit.priceCents,
+        costCents: lineUnit.costCents,
         unitPriceCents,
-        priceUnitLabel: saleUnitLabel(product.unitType, product.unitLabel),
-        quantityLabel: saleQuantityLabel(product.unitType, entry.quantity, product.unitLabel),
-        steppable: !isMeasured(product.unitType),
+        priceUnitLabel: saleUnitLabel(lineUnit.unitType, lineUnit.unitLabel),
+        quantityLabel: saleQuantityLabel(lineUnit.unitType, entry.quantity, lineUnit.unitLabel),
+        steppable: !isMeasured(lineUnit.unitType),
         quantity: entry.quantity,
-        lineTotalCents: lineTotalCents(unitPriceCents, entry.quantity, product.unitType),
+        lineTotalCents: lineTotalCents(unitPriceCents, entry.quantity, lineUnit.unitType),
       };
     })
     .filter(Boolean);
@@ -100,39 +109,48 @@ export default function CheckoutPage() {
   const hasCart = cart.length > 0;
   const canComplete = hasCart;
 
-  function setCartQuantity(product, quantity) {
+  function setCartQuantity(product, quantity, byPiece = false) {
+    const key = cartKey(product.id, byPiece);
     setCart((current) => {
-      const existing = current.find((entry) => entry.productId === product.id);
-      const without = current.filter((entry) => entry.productId !== product.id);
-      if (!quantity || quantity <= 0) return without;
-      return [...without, { productId: product.id, quantity, unitPriceCents: existing?.unitPriceCents ?? null }];
+      const existing = current.find((entry) => entry.key === key);
+      if (!quantity || quantity <= 0) return current.filter((entry) => entry.key !== key);
+      if (existing) return current.map((entry) => (entry.key === key ? { ...entry, quantity } : entry));
+      return [...current, { key, productId: product.id, byPiece, quantity, unitPriceCents: null }];
     });
   }
 
-  function changeQuantity(productId, delta) {
+  function changeQuantity(key, delta) {
     setCart((current) =>
       current
-        .map((entry) => (entry.productId === productId ? { ...entry, quantity: entry.quantity + delta } : entry))
+        .map((entry) => (entry.key === key ? { ...entry, quantity: entry.quantity + delta } : entry))
         .filter((entry) => entry.quantity > 0),
     );
   }
 
-  function changePrice(productId, unitPriceCents) {
-    setCart((current) =>
-      current.map((entry) => (entry.productId === productId ? { ...entry, unitPriceCents } : entry)),
-    );
+  function changePrice(key, unitPriceCents) {
+    setCart((current) => current.map((entry) => (entry.key === key ? { ...entry, unitPriceCents } : entry)));
   }
 
-  const padProduct = products.find((p) => p.id === padProductId);
+  function cartQuantity(productId, byPiece) {
+    return cart.find((entry) => entry.key === cartKey(productId, byPiece))?.quantity || 0;
+  }
+
+  // From a picker tile: open on the bundle line unless only a by-piece line is in the cart.
+  function openPadForProduct(productId) {
+    setPad({ productId, byPiece: !cartQuantity(productId, false) && cartQuantity(productId, true) > 0 });
+  }
+
+  const padProduct = pad && products.find((p) => p.id === pad.productId);
   const quantityPad = padProduct && (
     <QuantityPadSheet
       product={padProduct}
-      currentQuantity={cart.find((entry) => entry.productId === padProduct.id)?.quantity || 0}
-      onConfirm={(quantity) => {
-        setCartQuantity(padProduct, quantity);
-        setPadProductId(null);
+      initialByPiece={pad.byPiece}
+      quantityFor={(byPiece) => cartQuantity(padProduct.id, byPiece)}
+      onConfirm={(quantity, byPiece) => {
+        setCartQuantity(padProduct, quantity, byPiece);
+        setPad(null);
       }}
-      onClose={() => setPadProductId(null)}
+      onClose={() => setPad(null)}
     />
   );
 
@@ -176,6 +194,7 @@ export default function CheckoutPage() {
           productId: entry.productId,
           quantity: entry.quantity,
           unitPriceCents: entry.unitPriceCents ?? undefined,
+          byPiece: entry.byPiece || undefined,
         })),
         discountCents: discountCents || undefined,
       },
@@ -209,17 +228,14 @@ export default function CheckoutPage() {
             </div>
           )}
           <div className={styles["pick-grid"]}>
-            {visibleProducts.map((product) => {
-              const entry = cart.find((c) => c.productId === product.id);
-              return (
-                <ProductPickTile
-                  key={product.id}
-                  product={product}
-                  cartQuantity={entry ? entry.quantity : 0}
-                  onOpenAmount={() => setPadProductId(product.id)}
-                />
-              );
-            })}
+            {visibleProducts.map((product) => (
+              <ProductPickTile
+                key={product.id}
+                product={product}
+                cartLines={cart.filter((entry) => entry.productId === product.id)}
+                onOpenAmount={() => openPadForProduct(product.id)}
+              />
+            ))}
           </div>
           <ActionBar>
             <button type="button" className={styles["done-button"]} onClick={() => setView("checkout")}>
@@ -319,7 +335,7 @@ export default function CheckoutPage() {
                         item={row}
                         onIncrement={() => changeQuantity(row.id, 1)}
                         onDecrement={() => changeQuantity(row.id, -1)}
-                        onQuantityClick={() => setPadProductId(row.id)}
+                        onQuantityClick={() => setPad({ productId: row.productId, byPiece: row.byPiece })}
                         onPriceChange={(cents) => changePrice(row.id, cents)}
                       />
                     ))}

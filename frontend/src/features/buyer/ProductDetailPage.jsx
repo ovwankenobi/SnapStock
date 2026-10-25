@@ -8,8 +8,9 @@ import AppLayout from "../../components/AppLayout";
 import Badge from "../../components/Badge";
 import EmptyState from "../../components/EmptyState";
 import ActionBar from "../../components/ActionBar";
-import { centsToPeso, colorForKey, mediaUrl, unitSuffix } from "../../lib/format";
+import { centsToPeso, colorForKey, isBundle, mediaUrl, perPieceCents, unitSuffix } from "../../lib/format";
 import { buyerNavItems } from "../../lib/nav";
+import { useAuth } from "../auth/AuthContext";
 import styles from "./buyer.module.css";
 import { stockBadge } from "./buyerFormat";
 import BuySheet from "./BuySheet";
@@ -17,6 +18,7 @@ import BuySheet from "./BuySheet";
 export default function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
+  const { t } = useAuth();
   const [showBuySheet, setShowBuySheet] = useState(false);
   const [buyError, setBuyError] = useState("");
 
@@ -73,6 +75,13 @@ export default function ProductDetailPage() {
               <div className={styles["detail-price"]}>
                 {centsToPeso(product.priceCents)}/{unitSuffix(product.unitType, product.unitLabel)}
               </div>
+              {isBundle(product.unitType) && (
+                <div className={styles["detail-note"]}>
+                  {t("checkout.alsoPerPiece", {
+                    price: centsToPeso(perPieceCents(product.priceCents, product.piecesPerUnit)),
+                  })}
+                </div>
+              )}
             </div>
             <Badge tone={badge.tone}>{badge.label}</Badge>
           </div>

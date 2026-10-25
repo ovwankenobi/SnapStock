@@ -17,6 +17,7 @@ export default function AmountPadSheet({
   prefix,
   suffix,
   presets = [],
+  headerSlot,
   renderFooter,
   confirmLabel,
   canConfirm = (value) => value !== "",
@@ -68,6 +69,8 @@ export default function AmountPadSheet({
           ×
         </button>
       </div>
+
+      {headerSlot}
 
       <div className={styles["pad-display"]} aria-live="polite">
         {prefix && <span className={styles["pad-affix"]}>{prefix}</span>}

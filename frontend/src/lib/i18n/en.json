@@ -210,6 +210,9 @@
     "chooseValid": "Choose a valid date range."
   },
   "checkout": {
+    "sellByBundle": "Bundle ({pieces} pc)",
+    "sellByPiece": "Per piece",
+    "alsoPerPiece": "Can also be sold per piece · {price}/pc",
     "unitPrice": "Unit price",
     "editPrice": "Edit price for this sale",
     "wasPrice": "was {price}",
