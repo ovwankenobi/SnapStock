@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { listProducts } from "../../api/products";
-import { createSale } from "../../api/sales";
+import { createSale, uploadSaleProof } from "../../api/sales";
 import ActionBar from "../../components/ActionBar";
 import AppLayout from "../../components/AppLayout";
 import EmptyState from "../../components/EmptyState";
@@ -137,13 +137,22 @@ export default function CheckoutPage() {
   );
 
   const createSaleMutation = useMutation({
-    mutationFn: createSale,
-    onSuccess: (sale) => {
+    // The sale is saved (and stock deducted) first; a failed photo upload never undoes or retries it.
+    mutationFn: async ({ payload, proofFile }) => {
+      const sale = await createSale(payload);
+      if (!proofFile) return { sale, proofFailed: false };
+      try {
+        return { sale: await uploadSaleProof(sale.id, proofFile), proofFailed: false };
+      } catch {
+        return { sale, proofFailed: true };
+      }
+    },
+    onSuccess: ({ sale, proofFailed }) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["lowStockProducts"] });
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       queryClient.invalidateQueries({ predicate: (query) => String(query.queryKey[0]).startsWith("analytics") });
-      navigate(`/sales/${sale.id}/receipt`, { replace: true });
+      navigate(`/sales/${sale.id}/receipt`, { replace: true, state: proofFailed ? { proofFailed: true } : undefined });
     },
     onError: (err) => {
       setSubmitError(err.response?.data?.detail || "Could not complete the sale.");
@@ -156,18 +165,21 @@ export default function CheckoutPage() {
     setShowPaymentSheet(true);
   }
 
-  function completeSale() {
+  function completeSale(proofFile) {
     if (!canComplete || createSaleMutation.isPending) return;
     setSubmitError("");
     createSaleMutation.mutate({
-      saleType: "walk_in",
-      paymentMethod,
-      items: cart.map((entry) => ({
-        productId: entry.productId,
-        quantity: entry.quantity,
-        unitPriceCents: entry.unitPriceCents ?? undefined,
-      })),
-      discountCents: discountCents || undefined,
+      payload: {
+        saleType: "walk_in",
+        paymentMethod,
+        items: cart.map((entry) => ({
+          productId: entry.productId,
+          quantity: entry.quantity,
+          unitPriceCents: entry.unitPriceCents ?? undefined,
+        })),
+        discountCents: discountCents || undefined,
+      },
+      proofFile: paymentMethod === "cash" ? null : proofFile,
     });
   }
 

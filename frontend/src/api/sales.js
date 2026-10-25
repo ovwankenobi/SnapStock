@@ -5,13 +5,24 @@ export async function createSale(payload) {
   return data;
 }
 
-export async function listSales({ range, start, end, sale_type, buyerId, status, page = 1, pageSize = 20 } = {}) {
+export async function listSales({
+  range,
+  start,
+  end,
+  sale_type,
+  paymentMethod,
+  buyerId,
+  status,
+  page = 1,
+  pageSize = 20,
+} = {}) {
   const { data } = await apiClient.get("/sales", {
     params: {
       range: range || undefined,
       start: start || undefined,
       end: end || undefined,
       sale_type: sale_type || undefined,
+      payment_method: paymentMethod || undefined,
       buyer_id: buyerId || undefined,
       status: status || undefined,
       page,
@@ -48,6 +59,15 @@ export async function refundSale(id, reason) {
 
 export async function confirmPayment(id) {
   const { data } = await apiClient.post(`/sales/${id}/confirm-payment`);
+  return data;
+}
+
+export async function uploadSaleProof(id, file) {
+  const form = new FormData();
+  form.append("file", file);
+  const { data } = await apiClient.post(`/sales/${id}/proof`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data;
 }
 

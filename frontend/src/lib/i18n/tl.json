@@ -188,7 +188,16 @@
     "confirmPayment": "Kumpirmahin at Tapusin ang Benta",
     "completing": "Tinatapos ang benta...",
     "paidComplete": "Bayad na — Tapusin ang Benta",
-    "back": "Bumalik sa benta"
+    "back": "Bumalik sa benta",
+    "takeReceiptPhoto": "📷 Kunan ng litrato ang resibo ng bayad",
+    "retakeReceiptPhoto": "📷 Kunan ulit",
+    "removeReceiptPhoto": "Alisin ang litrato",
+    "receiptPhotoHint": "Opsyonal — litrato ng kumpirmasyon ng bayad ng customer.",
+    "paymentPhotoTitle": "Litrato ng resibo ng bayad",
+    "addPaymentPhoto": "📷 Magdagdag ng litrato ng bayad",
+    "uploadingPhoto": "Ina-upload ang litrato…",
+    "photoUploadError": "Hindi ma-upload ang litrato.",
+    "proofUploadFailed": "Naitala ang benta, pero hindi na-upload ang litrato. Idagdag ulit sa ibaba."
   },
   "dateRange": {
     "today": "Ngayon",
@@ -307,6 +316,15 @@
     "approve": "Aprubahan ang order",
     "allPending": "Lahat ng order na aaprubahan",
     "buyerAccountHint": "Mga online order ng mamimili na naghihintay ng iyong pag-apruba — tingnan ang bayad, saka aprubahan o tanggihan."
+  },
+  "transactions": {
+    "filters": "Mga Filter",
+    "filterType": "Uri",
+    "filterPayment": "Bayad",
+    "all": "Lahat",
+    "walkIn": "Walk-in",
+    "account": "Account",
+    "noMatches": "Walang resibong tugma sa mga filter na ito."
   },
   "analytics": {
     "tabs": {

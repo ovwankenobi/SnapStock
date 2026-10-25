@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QRCodeSVG } from "qrcode.react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { confirmPayment, getSale, refundSale, rejectOrder, voidSale } from "../../api/sales";
+import { confirmPayment, getSale, refundSale, rejectOrder, uploadSaleProof, voidSale } from "../../api/sales";
 import AppLayout from "../../components/AppLayout";
 import { useAuth } from "../auth/AuthContext";
 import { mediaUrl } from "../../lib/format";
@@ -18,6 +18,7 @@ const STATUS_ACTIONS = { void: voidSale, refund: refundSale, reject: rejectOrder
 export default function ReceiptPage() {
   const { saleId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { user, t } = useAuth();
   const [statusAction, setStatusAction] = useState(null);
@@ -49,8 +50,21 @@ export default function ReceiptPage() {
     onSuccess: onSaleChanged,
   });
 
+  // Seller's photo of a walk-in customer's digital payment, taken on the QR screen or added here.
+  const proofMutation = useMutation({
+    mutationFn: (file) => uploadSaleProof(saleId, file),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["sale", saleId], updated);
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+    },
+  });
+
   const isPendingOrder = sale?.status === "pending_payment";
   const needsProof = isPendingOrder && sale.paymentMethod !== "cash" && !sale.paymentProofUrl;
+  const showPaymentPhoto =
+    sale?.saleType === "walk_in" &&
+    sale.paymentMethod !== "cash" &&
+    (sale.status === "completed" || Boolean(sale.paymentProofUrl));
 
   const publicUrl = sale ? `${window.location.origin}/r/${sale.receiptCode}` : "";
 
@@ -106,6 +120,50 @@ export default function ReceiptPage() {
                 <button type="button" className={styles["order-review-reject"]} onClick={() => setStatusAction("reject")}>
                   {t("saleStatus.reject.action")}
                 </button>
+              </div>
+            )}
+
+            {showPaymentPhoto && (
+              <div className={`${styles["order-review"]} no-print`}>
+                <div className={styles["order-review-hint"]}>{t("payouts.paymentPhotoTitle")}</div>
+                {location.state?.proofFailed && !sale.paymentProofUrl && (
+                  <div className={styles["form-error"]}>{t("payouts.proofUploadFailed")}</div>
+                )}
+                {sale.paymentProofUrl && (
+                  <a href={mediaUrl(sale.paymentProofUrl)} target="_blank" rel="noreferrer">
+                    <img
+                      className={styles["order-review-proof"]}
+                      src={mediaUrl(sale.paymentProofUrl)}
+                      alt={t("payouts.paymentPhotoTitle")}
+                    />
+                    <span className={styles["order-review-hint"]}>{t("orders.viewFull")}</span>
+                  </a>
+                )}
+                {proofMutation.isError && (
+                  <div className={styles["form-error"]}>
+                    {proofMutation.error?.response?.data?.detail || t("payouts.photoUploadError")}
+                  </div>
+                )}
+                {sale.status === "completed" && (
+                  <label className={styles["receipt-photo-button"]}>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      capture="environment"
+                      disabled={proofMutation.isPending}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) proofMutation.mutate(file);
+                      }}
+                    />
+                    {proofMutation.isPending
+                      ? t("payouts.uploadingPhoto")
+                      : sale.paymentProofUrl
+                        ? t("payouts.retakeReceiptPhoto")
+                        : t("payouts.addPaymentPhoto")}
+                  </label>
+                )}
               </div>
             )}
 

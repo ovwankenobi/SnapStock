@@ -1,6 +1,6 @@
 import Badge from "../../components/Badge";
 import { centsToPeso } from "../../lib/format";
-import { SALE_STATUS_TAG } from "./salesFormat";
+import { paymentMethodLabel, SALE_STATUS_TAG } from "./salesFormat";
 import styles from "./sales.module.css";
 
 const TAG = {
@@ -34,7 +34,10 @@ export default function SalesHistoryRow({ sale, onClick, showTag = true }) {
         </span>
       </div>
       <div className={styles["history-row-bottom"]}>
-        <span className={styles["history-row-items"]}>{sale.itemsSummary || "—"}</span>
+        <div className={styles["history-row-meta"]}>
+          {sale.paymentMethod && <Badge tone="neutral">{paymentMethodLabel(sale.paymentMethod)}</Badge>}
+          <span className={styles["history-row-items"]}>{sale.itemsSummary || "—"}</span>
+        </div>
         <span className={styles["history-row-time"]}>{sale.timeLabel}</span>
       </div>
     </button>

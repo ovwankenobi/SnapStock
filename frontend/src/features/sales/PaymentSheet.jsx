@@ -20,6 +20,8 @@ export default function PaymentSheet({
 }) {
   const { user, t } = useAuth();
   const [showQr, setShowQr] = useState(false);
+  // Optional photo of the customer's payment confirmation, taken on the QR screen.
+  const [proofFile, setProofFile] = useState(null);
   const qrAccounts = qrAccountsFor(user?.sellerProfile?.payoutAccounts, paymentMethod);
 
   if (showQr && qrAccounts.length > 0) {
@@ -27,10 +29,15 @@ export default function PaymentSheet({
       <QrPayScreen
         accounts={qrAccounts}
         totalCents={totalCents}
-        onConfirm={onConfirm}
-        onBack={() => setShowQr(false)}
+        onConfirm={() => onConfirm(proofFile)}
+        onBack={() => {
+          setShowQr(false);
+          setProofFile(null);
+        }}
         isSubmitting={isSubmitting}
         error={error}
+        proofFile={proofFile}
+        onProofChange={setProofFile}
       />
     );
   }
@@ -59,7 +66,7 @@ export default function PaymentSheet({
 
         <div className={styles["payment-sheet-actions"]}>
           <button type="button" className={styles["status-sheet-confirm"]} disabled={isSubmitting}
-            onClick={qrAccounts.length > 0 ? () => setShowQr(true) : onConfirm}
+            onClick={qrAccounts.length > 0 ? () => setShowQr(true) : () => onConfirm(null)}
           >
             {isSubmitting ? t("payouts.completing") : t("payouts.confirmPayment")}
           </button>

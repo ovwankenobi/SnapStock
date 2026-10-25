@@ -325,6 +325,35 @@
 .analytics { padding: var(--page-gutter); display: flex; flex-direction: column; gap: 16px; }
 .analytics-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .analytics-list { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 9px; }
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.filter-toggle-label { font-size: 14px; font-weight: 800; flex: none; }
+.filter-toggle-summary {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.filter-toggle-chevron { display: flex; color: var(--color-muted); transition: transform 0.15s; }
+.filter-toggle-open .filter-toggle-chevron { transform: rotate(180deg); }
+.filter-panel { display: flex; flex-direction: column; gap: 16px; }
 @media (min-width: 1024px) {
   .analytics { flex-direction: row; gap: 20px; align-items: flex-start; }
   .analytics-side { width: 360px; flex: none; }
@@ -373,6 +402,8 @@
 .history-row-title { font-size: 14.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .history-row-amount { flex: none; font-size: 16px; font-weight: 800; }
 .history-row-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.history-row-meta { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.history-row-meta > :first-child { flex: none; }
 .history-row-items { min-width: 0; font-size: 12px; color: var(--color-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .history-row-time { flex: none; font-size: 11.5px; color: var(--color-muted); }
 
@@ -475,3 +506,19 @@
   align-self: flex-start; min-height: 44px; padding: 0; border: none; background: none;
   font: inherit; font-size: 13.5px; font-weight: 700; color: var(--color-primary); cursor: pointer;
 }
+.receipt-photo-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 12px;
+  border-radius: 15px;
+  border: 1px dashed var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.receipt-photo-button input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.receipt-photo-button:has(input:disabled) { opacity: 0.6; cursor: wait; }

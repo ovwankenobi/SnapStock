@@ -222,6 +222,25 @@ def submit_payment_proof(db: Session, sale_id: uuid.UUID, buyer_id: uuid.UUID, f
     return sale
 
 
+def attach_seller_payment_proof(
+    db: Session, sale_id: uuid.UUID, seller_id: uuid.UUID, file: UploadFile
+) -> Sale | None:
+    """Attach (or replace) the seller's photo of a walk-in customer's digital payment confirmation."""
+    sale = _lock_sale(db, sale_id, Sale.seller_id == seller_id)
+    if sale is None:
+        return None
+    if sale.sale_type != SaleType.WALK_IN or sale.status != SaleStatus.COMPLETED:
+        raise SaleStatusError("Only completed walk-in sales take a seller payment photo")
+    if sale.payment_method == PaymentMethod.CASH:
+        raise PaymentProofNotAllowedError("Cash sales are paid in person")
+
+    sale.payment_proof_url = uploads_service.save_image(file, prefix=f"proof_{sale.id}", private=True)
+    sale.proof_submitted_at = now_utc()
+    db.commit()
+    db.refresh(sale)
+    return sale
+
+
 def confirm_payment(db: Session, sale_id: uuid.UUID, seller_id: uuid.UUID) -> Sale | None:
     """The seller confirms a buyer's order was paid: it becomes a completed sale that counts everywhere."""
     sale = _lock_sale(db, sale_id, Sale.seller_id == seller_id)
@@ -266,6 +285,7 @@ def list_sales(
     start: datetime | None = None,
     end: datetime | None = None,
     sale_type: SaleType | None = None,
+    payment_method: PaymentMethod | None = None,
     buyer_id: uuid.UUID | None = None,
     status: SaleStatus | None = None,
     page: int = 1,
@@ -280,6 +300,8 @@ def list_sales(
         query = query.filter(Sale.created_at <= range_end)
     if sale_type is not None:
         query = query.filter(Sale.sale_type == sale_type)
+    if payment_method is not None:
+        query = query.filter(Sale.payment_method == payment_method)
     if buyer_id is not None:
         query = query.filter(Sale.buyer_id == buyer_id)
     if status is not None:

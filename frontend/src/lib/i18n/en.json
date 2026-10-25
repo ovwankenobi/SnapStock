@@ -188,7 +188,16 @@
     "confirmPayment": "Confirm & Complete Sale",
     "completing": "Completing sale...",
     "paidComplete": "Paid — Complete Sale",
-    "back": "Back to sale"
+    "back": "Back to sale",
+    "takeReceiptPhoto": "📷 Take photo of payment receipt",
+    "retakeReceiptPhoto": "📷 Retake photo",
+    "removeReceiptPhoto": "Remove photo",
+    "receiptPhotoHint": "Optional — a photo of the customer's payment confirmation.",
+    "paymentPhotoTitle": "Payment receipt photo",
+    "addPaymentPhoto": "📷 Add payment photo",
+    "uploadingPhoto": "Uploading photo…",
+    "photoUploadError": "Could not upload the photo.",
+    "proofUploadFailed": "Sale saved, but the photo didn't upload. Add it again below."
   },
   "dateRange": {
     "today": "Today",
@@ -307,6 +316,15 @@
     "approve": "Approve order",
     "allPending": "All orders to approve",
     "buyerAccountHint": "Online orders from buyers waiting for your approval — check the payment, then approve or reject."
+  },
+  "transactions": {
+    "filters": "Filters",
+    "filterType": "Type",
+    "filterPayment": "Payment",
+    "all": "All",
+    "walkIn": "Walk-in",
+    "account": "Account",
+    "noMatches": "No receipts match these filters."
   },
   "analytics": {
     "tabs": {

@@ -16,11 +16,32 @@ export function qrAccountsFor(accounts = [], method) {
 
 // Full-screen QR shown to a walk-in customer before the seller completes a non-cash sale.
 // Portaled to <body> so it escapes the sheet's scroll container and covers the whole screen.
-export default function QrPayScreen({ accounts, totalCents, onConfirm, onBack, isSubmitting, error }) {
+// With `onProofChange`, the seller can also photograph the customer's payment confirmation (optional).
+export default function QrPayScreen({
+  accounts,
+  totalCents,
+  onConfirm,
+  onBack,
+  isSubmitting,
+  error,
+  proofFile,
+  onProofChange,
+}) {
   const { t } = useAuth();
   const [index, setIndex] = useState(0);
   const account = accounts[Math.min(index, accounts.length - 1)];
   const title = payoutAccountTitle(t, account);
+  const [proofPreview, setProofPreview] = useState(null);
+
+  useEffect(() => {
+    if (!proofFile) {
+      setProofPreview(null);
+      return undefined;
+    }
+    const url = URL.createObjectURL(proofFile);
+    setProofPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [proofFile]);
 
   useEffect(() => {
     function handleKeyDown(event) {
@@ -58,6 +79,41 @@ export default function QrPayScreen({ accounts, totalCents, onConfirm, onBack, i
             </button>
           ))}
         </div>
+      )}
+
+      {onProofChange && (
+        <>
+          <div className={styles["qr-screen-proof"]}>
+            {proofPreview && (
+              <div className={styles["qr-screen-proof-thumb"]}>
+                <img src={proofPreview} alt={t("payouts.paymentPhotoTitle")} />
+                <button
+                  type="button"
+                  aria-label={t("payouts.removeReceiptPhoto")}
+                  disabled={isSubmitting}
+                  onClick={() => onProofChange(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <label className={styles["qr-screen-photo"]} aria-disabled={isSubmitting}>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                capture="environment"
+                disabled={isSubmitting}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) onProofChange(file);
+                }}
+              />
+              {proofFile ? t("payouts.retakeReceiptPhoto") : t("payouts.takeReceiptPhoto")}
+            </label>
+          </div>
+          {!proofFile && <p className={styles["qr-screen-proof-hint"]}>{t("payouts.receiptPhotoHint")}</p>}
+        </>
       )}
 
       {error && (

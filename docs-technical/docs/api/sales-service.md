@@ -59,6 +59,15 @@ every line's pieces to stock through `apply_stock_change` (reasons `void` / `ref
 
 Partial refunds are not supported. Response: `SaleRead`.
 
+## `POST /sales/{saleId}/proof`
+
+Seller-only, multipart `file` (JPEG/PNG/WebP). Attaches or replaces the seller's photo of a walk-in
+customer's digital payment confirmation, stored privately like a buyer's screenshot and returned as
+`paymentProofUrl`. Only for `completed` `walk_in` sales (`409` otherwise, and `409` for cash); `404`
+for another seller's sale; `400` for a bad image. The frontend calls it right after `POST /sales`
+when the seller took a photo on the QR screen. A failed upload never undoes the sale, and the
+receipt screen offers **Add payment photo** to try again. Response: `SaleRead`.
+
 ## `POST /sales/{saleId}/confirm-payment` and `POST /sales/{saleId}/reject`
 
 Seller actions on a buyer's `pending_payment` order (`409` for any other status).
@@ -84,7 +93,7 @@ they ring up themselves.
 List/filter the caller's sales.
 
 **Query params:** `range` (`today`\|`week`\|`month`\|`custom`), `start`/`end` (required if
-`range=custom`), `saleType`, `buyerId`, `status`, `page`, `pageSize` (max 100).
+`range=custom`), `saleType`, `paymentMethod`, `buyerId`, `status`, `page`, `pageSize` (max 100).
 
 **Response:** `SaleListResponse` — `{ items: SaleListItem[], total, page, pageSize }`. Each item
 includes a resolved `buyerName` (looked up separately, not stored on the sale) and `itemCount`.

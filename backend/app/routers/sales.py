@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.deps import require_seller
 from app.database import get_db
-from app.models.sale import Sale, SaleStatus, SaleType
+from app.models.sale import PaymentMethod, Sale, SaleStatus, SaleType
 from app.models.user import User
 from app.schemas.sale import (
     BuyerSearchResult,
@@ -106,6 +106,7 @@ def list_sales(
     start: datetime | None = Query(default=None),
     end: datetime | None = Query(default=None),
     sale_type: SaleType | None = Query(default=None),
+    payment_method: PaymentMethod | None = Query(default=None),
     buyer_id: uuid.UUID | None = Query(default=None),
     sale_status: SaleStatus | None = Query(default=None, alias="status"),
     page: int = Query(default=1, ge=1),
@@ -126,6 +127,7 @@ def list_sales(
         start=start,
         end=end,
         sale_type=sale_type,
+        payment_method=payment_method,
         buyer_id=buyer_id,
         status=sale_status,
         page=page,
@@ -250,6 +252,28 @@ def confirm_payment(
         seller,
         SaleStatusChange(),
     )
+
+
+@router.post("/{sale_id}/proof", response_model=SaleRead)
+def upload_sale_proof(
+    sale_id: uuid.UUID,
+    file: UploadFile = File(...),
+    seller: User = Depends(require_seller),
+    db: Session = Depends(get_db),
+):
+    """Attach the seller's photo of a walk-in customer's payment confirmation."""
+    try:
+        sale = sales_service.attach_seller_payment_proof(db, sale_id, seller.id, file)
+    except uploads_service.InvalidImageError as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except (sales_service.SaleStatusError, sales_service.PaymentProofNotAllowedError) as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    if sale is None:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sale not found")
+    return _to_sale_read(db, sale)
 
 
 @router.post("/{sale_id}/reject", response_model=SaleRead)
