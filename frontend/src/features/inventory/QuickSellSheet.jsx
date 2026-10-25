@@ -13,6 +13,7 @@ import {
 } from "../../lib/format";
 import { useAuth } from "../auth/AuthContext";
 import PaymentMethodPicker from "../payouts/PaymentMethodPicker";
+import QrPayScreen, { qrAccountsFor } from "../payouts/QrPayScreen";
 import PriceEditor from "../sales/PriceEditor";
 import styles from "./inventory.module.css";
 
@@ -23,12 +24,33 @@ export default function QuickSellSheet({ product, onConfirm, onClose, isSubmitti
   const [paymentMethod, setPaymentMethod] = useState("cash");
   // Agreed price for this sale only; null = the product's list price.
   const [unitPriceCents, setUnitPriceCents] = useState(null);
+  // Full-screen QR step before a non-cash sale is recorded.
+  const [showQr, setShowQr] = useState(false);
   const { user, t } = useAuth();
 
   const unit = unitSuffix(product.unitType, product.unitLabel);
   const maxQuantity = Math.max(1, Math.floor(product.stockPieces / product.piecesPerUnit));
   const saleQuantity = measured ? parseQuantityInput(measureInput, product.unitType) : quantity;
   const total = lineTotalCents(unitPriceCents ?? product.priceCents, saleQuantity, product.unitType);
+  const qrAccounts = qrAccountsFor(user?.sellerProfile?.payoutAccounts, paymentMethod);
+
+  // The whole payload (including an edited price) is what the offline queue replays.
+  function confirmSale() {
+    onConfirm({ quantity: saleQuantity, paymentMethod, unitPriceCents: unitPriceCents ?? undefined });
+  }
+
+  if (showQr && qrAccounts.length > 0) {
+    return (
+      <QrPayScreen
+        accounts={qrAccounts}
+        totalCents={total}
+        onConfirm={confirmSale}
+        onBack={() => setShowQr(false)}
+        isSubmitting={isSubmitting}
+        error={error}
+      />
+    );
+  }
 
   return (
     <Sheet onClose={onClose} centered label={product.name}>
@@ -70,8 +92,7 @@ export default function QuickSellSheet({ product, onConfirm, onClose, isSubmitti
         type="button"
         className={styles["sheet-submit"]}
         disabled={isSubmitting || saleQuantity <= 0}
-        // The whole payload (including an edited price) is what the offline queue replays.
-        onClick={() => onConfirm({ quantity: saleQuantity, paymentMethod, unitPriceCents: unitPriceCents ?? undefined })}
+        onClick={qrAccounts.length > 0 ? () => setShowQr(true) : confirmSale}
       >
         {isSubmitting ? "Selling..." : "Confirm Sale"}
       </button>

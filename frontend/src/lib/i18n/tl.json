@@ -187,6 +187,7 @@
     "total": "Kabuuan",
     "confirmPayment": "Kumpirmahin at Tapusin ang Benta",
     "completing": "Tinatapos ang benta...",
+    "paidComplete": "Bayad na — Tapusin ang Benta",
     "back": "Bumalik sa benta"
   },
   "dateRange": {
@@ -461,7 +462,7 @@
     }
   },
   "buyerTransactions": {
-    "title": "Aking mga Transaksyon",
+    "title": "Aking mga Resibo",
     "loading": "Nilo-load ang mga transaksyon…",
     "loadError": "Hindi ma-load ang iyong mga transaksyon.",
     "empty": "Wala ka pang nabili — lalabas dito ang iyong mga transaksyon pagkatapos mong bumili."

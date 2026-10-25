@@ -187,6 +187,7 @@
     "total": "Total",
     "confirmPayment": "Confirm & Complete Sale",
     "completing": "Completing sale...",
+    "paidComplete": "Paid — Complete Sale",
     "back": "Back to sale"
   },
   "dateRange": {
@@ -461,7 +462,7 @@
     }
   },
   "buyerTransactions": {
-    "title": "My Transactions",
+    "title": "My Receipts",
     "loading": "Loading transactions…",
     "loadError": "Could not load your transactions.",
     "empty": "No purchases yet — your transactions appear here after you buy something."

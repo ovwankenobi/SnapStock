@@ -9,7 +9,7 @@ export function sellerNavItems() {
     { to: "/inventory", labelKey: "nav.inventory", icon: "box" },
     { to: "/sales", labelKey: "nav.newSale", shortLabelKey: "nav.sell", icon: "plus", primary: true },
     { to: "/analytics", labelKey: "nav.analytics", icon: "chart" },
-    { to: "/transactions", labelKey: "nav.transactions", icon: "receipt" },
+    { to: "/transactions", labelKey: "nav.receipts", icon: "receipt" },
     { to: "/profile", labelKey: "nav.profile", icon: "user", showUserName: true },
   ];
 }
@@ -18,7 +18,7 @@ export function buyerNavItems() {
   return [
     { to: "/buyer", labelKey: "nav.discover", icon: "home", end: true },
     { to: "/messages", labelKey: "nav.messages", icon: "chat" },
-    { to: "/buyer/receipts", labelKey: "nav.transactions", icon: "receipt" },
+    { to: "/buyer/receipts", labelKey: "nav.receipts", icon: "receipt" },
     { to: "/profile", labelKey: "nav.profile", icon: "user", showUserName: true },
   ];
 }

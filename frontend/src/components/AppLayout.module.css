@@ -102,9 +102,11 @@
   border-top: 1px solid var(--color-border);
 }
 .bottom-nav-item {
-  flex: 1;
-  /* Each slot is at least as wide as its full label (e.g. "Transactions"); spare width is shared equally. */
-  min-width: min-content;
+  /* Slots size to their labels but may shrink below them (labels then ellipsize),
+     so seven tabs never push the bar past the screen edge on narrow phones. */
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 1px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,8 +118,8 @@
 .bottom-nav-item-active { color: var(--color-primary); }
 .bottom-nav-icon {
   position: relative;
-  width: 52px;
-  max-width: 100%;
+  width: 100%;
+  max-width: 52px;
   height: 28px;
   border-radius: var(--radius-full);
   display: flex;
@@ -127,6 +129,7 @@
 .bottom-nav-item-active .bottom-nav-icon { background: var(--color-primary-soft); }
 .bottom-nav-primary {
   position: relative;
+  flex: none;
   width: 52px;
   height: 52px;
   margin-top: -32px;
@@ -148,9 +151,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* Seven full labels only fit a ~360px phone at a slightly smaller size. */
+/* Seven labels only fit a ~360px phone at a slightly smaller size. */
 @media (max-width: 399px) {
-  .bottom-nav-label { font-size: 10px; letter-spacing: -0.1px; }
+  .bottom-nav-label { font-size: 10px; letter-spacing: -0.2px; }
 }
 
 /* ---------- tablet: icon rail ---------- */

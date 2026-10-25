@@ -41,7 +41,7 @@ export default function TransactionsPage() {
   const sales = data?.items || [];
 
   return (
-    <AppLayout navItems={sellerNavItems()} title={t("nav.transactions")}>
+    <AppLayout navItems={sellerNavItems()} title={t("nav.receipts")}>
       <div className={styles.analytics}>
         <div className={styles["analytics-side"]}>
           <DateRangeFilter state={dateRange} />

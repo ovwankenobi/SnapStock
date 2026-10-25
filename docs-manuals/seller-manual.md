@@ -206,7 +206,9 @@ tabs:
 6. Tap **Complete Sale**.
 7. Under **How did the buyer pay?**, choose **Cash** or one of your payout methods. For a digital
    payment, your matching QR code appears so the customer can scan it.
-8. Once you've been paid, tap **Confirm & Complete Sale**.
+8. Tap **Confirm & Complete Sale**. For a digital payment with a QR, the QR first fills the
+   screen so the customer can scan it easily; once you've been paid, tap **Paid — Complete Sale**
+   (or **Back to sale** to change the method).
 9. You'll land on the **Receipt** screen with a QR code the buyer can scan.
 
 ![Screenshot: New Sale cart and payment sheet](placeholder.png)
