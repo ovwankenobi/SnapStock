@@ -1,4 +1,4 @@
-# Public Market POS
+# SnapStock
 
 A mobile-first POS and inventory app for sellers in public markets and small retail (sari-sari stores, market stalls), with a companion buyer experience for digital orders, receipts, and messaging.
 
