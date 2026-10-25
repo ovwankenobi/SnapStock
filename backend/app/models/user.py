@@ -1,7 +1,8 @@
 import enum
 import uuid
+from datetime import datetime
 
-from sqlalchemy import Boolean, Enum, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -34,6 +35,12 @@ class User(UUIDPkMixin, CreatedAtMixin, UpdatedAtMixin, Base):
     is_active: Mapped[bool] = mapped_column(
         Boolean, default=True, server_default="true", nullable=False
     )
+    # Login QR (made on the Profile page): only a SHA-256 of the key is stored. It is separate from
+    # the password, so changing the password leaves it working; regenerating or revoking replaces it.
+    qr_login_key_hash: Mapped[str | None] = mapped_column(
+        String, unique=True, index=True, nullable=True
+    )
+    qr_login_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     seller_profile: Mapped["SellerProfile | None"] = relationship(
         back_populates="user", uselist=False, cascade="all, delete-orphan"

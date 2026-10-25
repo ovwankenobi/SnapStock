@@ -64,7 +64,7 @@ def _to_sale_read(sale: Sale, buyer_name: str | None) -> SaleRead:
         receipt_code=sale.receipt_code,
         note=sale.note,
         created_at=sale.created_at,
-        payment_proof_url=sale.payment_proof_url,
+        payment_proof_url=uploads_service.private_url(sale.payment_proof_url),
         proof_submitted_at=sale.proof_submitted_at,
         items=[SaleItemRead.model_validate(item) for item in sale.items],
     )

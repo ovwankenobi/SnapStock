@@ -68,7 +68,7 @@ class Sale(UUIDPkMixin, CreatedAtMixin, Base):
     )
     status_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     status_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
-    # The buyer's payment screenshot for a digital order (served from /uploads).
+    # Storage key of the buyer's payment screenshot (private; see services/uploads.private_url).
     payment_proof_url: Mapped[str | None] = mapped_column(String, nullable=True)
     proof_submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     payment_method: Mapped[PaymentMethod] = mapped_column(

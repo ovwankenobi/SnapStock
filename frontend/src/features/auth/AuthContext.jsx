@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-import { getMe, login as loginRequest, register as registerRequest, updateMe } from "../../api/auth";
+import { getMe, login as loginRequest, qrLogin, register as registerRequest, updateMe } from "../../api/auth";
 import { interpolate, translate } from "../../lib/i18n";
 
 const TOKEN_KEY = "token";
@@ -60,6 +60,11 @@ export function AuthProvider({ children }) {
     return applySession(data);
   }
 
+  async function loginWithQr(key) {
+    const data = await qrLogin(key);
+    return applySession(data);
+  }
+
   async function register(payload) {
     const data = await registerRequest(payload);
     return applySession(data);
@@ -103,6 +108,7 @@ export function AuthProvider({ children }) {
       isLoading,
       language,
       login,
+      loginWithQr,
       register,
       logout,
       updateProfile,

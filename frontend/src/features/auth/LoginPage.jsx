@@ -6,9 +6,10 @@ import styles from "./auth.module.css";
 import Icon from "../../components/Icon";
 import Logo from "../../components/Logo";
 import LanguageToggle from "./LanguageToggle";
+import QrScanSheet from "./QrScanSheet";
 
 export default function LoginPage() {
-  const { login, t } = useAuth();
+  const { login, loginWithQr, t } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState("");
@@ -16,15 +17,23 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  function goHome(user) {
+    const redirectTo = location.state?.from?.pathname || (user.role === "seller" ? "/dashboard" : "/buyer");
+    navigate(redirectTo, { replace: true });
+  }
+
+  async function handleQrKey(key) {
+    goHome(await loginWithQr(key));
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
     try {
-      const user = await login(email, password);
-      const redirectTo = location.state?.from?.pathname || (user.role === "seller" ? "/dashboard" : "/buyer");
-      navigate(redirectTo, { replace: true });
+      goHome(await login(email, password));
     } catch {
       setError(t("auth.login.error"));
     } finally {
@@ -86,6 +95,15 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
+        <Link to="/forgot-password" className={styles["forgot-link"]}>
+          {t("auth.login.forgotPassword")}
+        </Link>
+
+        {location.state?.passwordReset && !error && (
+          <div className={styles["form-success"]} role="status">
+            {t("auth.login.resetSuccess")}
+          </div>
+        )}
 
         {error && (
           <div className={styles["form-error"]} role="alert">
@@ -96,7 +114,16 @@ export default function LoginPage() {
         <button type="submit" className={styles["submit-button"]} disabled={isSubmitting}>
           {isSubmitting ? t("auth.login.submitting") : t("auth.login.submit")}
         </button>
+        <button
+          type="button"
+          className={`${styles["profile-account-row"]} ${styles["qr-login-button"]}`}
+          onClick={() => setIsScanning(true)}
+        >
+          {t("auth.login.withQr")}
+        </button>
       </form>
+
+      {isScanning && <QrScanSheet onClose={() => setIsScanning(false)} onKey={handleQrKey} />}
 
       <p className={styles["switch-link"]}>
         {t("auth.login.noAccount")} <Link to="/register">{t("auth.login.createAccount")}</Link>

@@ -1,0 +1,36 @@
+# SITE_ADDRESS is the public domain in production (automatic HTTPS via Let's Encrypt).
+# Set it to ":80" to test the stack locally over plain HTTP.
+{$SITE_ADDRESS:snapstock.duckdns.org} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	@backend path /api/* /uploads/*
+	handle @backend {
+		request_body {
+			max_size 10MB
+		}
+		reverse_proxy backend:6767 {
+			# Overwrite, never append: the backend trusts this header for the client IP.
+			header_up X-Forwarded-For {remote_host}
+		}
+	}
+
+	handle {
+		root * /srv
+		# Vite fingerprints everything in assets/, so it can be cached forever;
+		# everything else (index.html, favicon) must be revalidated to pick up new deploys.
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		@not_assets not path /assets/*
+		header @not_assets Cache-Control "no-cache"
+		# SPA fallback so deep links like /r/<receiptCode> load the app.
+		try_files {path} /index.html
+		file_server
+	}
+}

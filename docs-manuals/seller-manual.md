@@ -37,6 +37,18 @@ code (see [1.4](#14-payout-accounts-how-buyers-pay-you)), then tap **Save & cont
 1. Enter your **Email** and **Password** on the sign-in screen.
 2. Tap **Sign In**.
 
+**Logging in with a QR code (optional).** You can make a personal login QR so you don't have to
+type your email and password:
+
+1. Go to **Profile** → **Login QR** → **Create login QR**, and enter your password.
+2. Tap **Download QR image** and keep the picture somewhere safe. It is shown only once.
+3. Next time, on the login screen tap **Log in with QR code**, then point the camera at the QR or
+   tap **Upload QR image** to choose the saved picture.
+
+> Anyone who has your login QR can log in as you, so treat it like a password. Changing your
+> password does **not** stop the QR from working. To make an old QR stop working, go to Profile and
+> tap **Regenerate login QR** (makes a new one) or **Revoke login QR**.
+
 ## 1.3 Editing Your Stall Details Later
 
 Your stall setup isn't locked in at registration — you can update it anytime:

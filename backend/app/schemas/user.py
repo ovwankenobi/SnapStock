@@ -28,6 +28,7 @@ class UserRead(CamelModel):
     phone: str | None = None
     preferred_language: str
     created_at: datetime
+    qr_login_created_at: datetime | None = None
     seller_profile: SellerProfileRead | None = None
 
 
@@ -47,6 +48,28 @@ class RegisterRequest(CamelModel):
         if self.role == "seller" and (not self.business_name or not self.business_type):
             raise ValueError("business_name and business_type are required for sellers")
         return self
+
+
+class ForgotPasswordRequest(CamelModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(CamelModel):
+    token: str
+    new_password: str = Field(min_length=8)
+
+
+class QrLoginKeyCreate(CamelModel):
+    current_password: str
+
+
+class QrLoginKeyRead(CamelModel):
+    key: str
+    created_at: datetime
+
+
+class QrLoginRequest(CamelModel):
+    key: str
 
 
 class AuthResponse(CamelModel):

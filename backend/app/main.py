@@ -9,7 +9,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
 from app.core.rate_limit import limiter
-from app.routers import analytics, auth, catalog, inventory, messages, payouts, sales
+from app.routers import analytics, auth, catalog, inventory, messages, payouts, sales, uploads
 
 app = FastAPI(title="Public Market POS")
 
@@ -31,8 +31,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+if settings.STORAGE_BACKEND == "s3":
+    app.include_router(uploads.public_s3_router)
+else:
+    Path(settings.UPLOAD_DIR).mkdir(parents=True, exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
+    app.include_router(uploads.private_router)
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(inventory.router, prefix="/api/v1")

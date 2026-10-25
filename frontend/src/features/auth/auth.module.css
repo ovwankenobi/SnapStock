@@ -101,6 +101,28 @@
   border-radius: 11px;
   padding: 10px 14px;
 }
+.form-success {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-success);
+  background: var(--color-success-soft);
+  border-radius: 11px;
+  padding: 10px 14px;
+}
+.forgot-link {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -12px 0 -8px;
+  padding: 0 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.form-intro { font-size: 14px; color: var(--color-muted); line-height: 1.45; text-align: center; }
+.form-title { font-size: 20px; font-weight: 800; text-align: center; }
 .submit-button {
   height: 54px;
   border-radius: 15px;
@@ -118,6 +140,7 @@
 .submit-button:active:not(:disabled) { transform: scale(0.98); }
 .submit-button:focus-visible { outline: 3px solid var(--color-primary-soft); outline-offset: 2px; }
 .submit-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.link-button { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 .switch-link {
   font-size: 14px;
   color: var(--color-muted);
@@ -213,3 +236,29 @@
 }
 .profile-language { display: flex; flex-direction: column; gap: 8px; max-width: 220px; }
 .profile-page .auth-form { margin-top: 0; max-width: none; }
+.change-password { display: flex; flex-direction: column; gap: 10px; }
+.change-password-hint { font-size: 13.5px; color: var(--color-muted); line-height: 1.45; }
+
+/* login QR: made on Profile, scanned on the login page */
+.qr-sheet-title { font-size: 18px; font-weight: 700; }
+.qr-form { display: flex; flex-direction: column; gap: 14px; }
+.qr-code-box {
+  align-self: center;
+  padding: 8px;
+  border-radius: 16px;
+  background: #fff; /* scanners need dark-on-light, even in dark mode */
+  line-height: 0;
+}
+.qr-code-box canvas { max-width: 100%; height: auto; }
+.qr-full { width: 100%; }
+.qr-video-wrap { position: relative; width: 100%; aspect-ratio: 1; border-radius: 16px; overflow: hidden; background: #000; }
+.qr-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.qr-login-button { width: 100%; justify-content: center; gap: 10px; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

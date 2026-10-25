@@ -20,6 +20,7 @@ from app.schemas.conversation import (
     MessageRead,
 )
 from app.services import messages as messages_service
+from app.services import uploads as uploads_service
 
 router = APIRouter(prefix="/conversations", tags=["messages"])
 
@@ -136,7 +137,7 @@ def list_messages(
                 total_cents=sale.total_cents,
                 payment_method=sale.payment_method,
                 status=sale.status,
-                payment_proof_url=sale.payment_proof_url,
+                payment_proof_url=uploads_service.private_url(sale.payment_proof_url),
             )
         return read
 

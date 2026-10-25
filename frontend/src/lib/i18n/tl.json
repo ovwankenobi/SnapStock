@@ -1,4 +1,11 @@
 {
+  "profile": {
+    "tabs": {
+      "profile": "Profile",
+      "payment": "Bayad",
+      "security": "Seguridad"
+    }
+  },
   "common": {
     "appName": "SnapStock"
   },
@@ -22,7 +29,10 @@
       "submitting": "Nag-lo-log in...",
       "noAccount": "Bago dito?",
       "createAccount": "Gumawa ng account",
-      "error": "Maling email o password."
+      "error": "Maling email o password.",
+      "forgotPassword": "Nakalimutan ang password?",
+      "resetSuccess": "Na-update na ang password. Mag-log in gamit ang bagong password.",
+      "withQr": "Mag-log in gamit ang QR code"
     },
     "register": {
       "chooseRole": "Ako ay...",
@@ -46,6 +56,68 @@
       "signIn": "Mag-sign in",
       "error": "May nagkamali. Pakisuri ang iyong mga detalye at subukan muli.",
       "emailTaken": "Nakarehistro na ang email na iyon."
+    },
+    "forgot": {
+      "title": "Nakalimutan ang password?",
+      "intro": "Ilagay ang email na ginamit mo sa pag-sign up at magpapadala kami ng link para makapagtakda ng bagong password.",
+      "email": "Email",
+      "submit": "Ipadala ang reset link",
+      "submitting": "Ipinapadala...",
+      "sent": "Kung may account ang email na iyon, nagpadala kami ng reset link. Tingnan ang inbox at spam folder. Mag-e-expire ang link sa loob ng 30 minuto.",
+      "error": "Hindi naipadala ang link. Pakisubukang muli.",
+      "tooMany": "Masyadong maraming request. Maghintay ng isang minuto at subukang muli.",
+      "backToLogin": "Bumalik sa log in"
+    },
+    "reset": {
+      "title": "Magtakda ng bagong password",
+      "newPassword": "Bagong password",
+      "confirmPassword": "Kumpirmahin ang bagong password",
+      "submit": "I-save ang bagong password",
+      "submitting": "Sine-save...",
+      "tooShort": "Dapat hindi bababa sa 8 character ang password.",
+      "mismatch": "Hindi magkatugma ang mga password.",
+      "invalidLink": "Hindi valid o expired na ang reset link na ito.",
+      "requestNew": "Humingi ng bagong link",
+      "error": "Hindi na-update ang password. Pakisubukang muli."
+    },
+    "changePassword": {
+      "title": "Password",
+      "hint": "Magpapadala kami ng link sa iyong email. Buksan ito para magtakda ng bagong password.",
+      "submit": "I-email ang link para palitan ang password",
+      "submitting": "Ipinapadala...",
+      "sent": "Naipadala ang link sa {email}. Tingnan ang inbox at spam folder. Mag-e-expire ang link sa loob ng 30 minuto.",
+      "sendAgain": "Ipadala muli",
+      "tooMany": "Masyadong maraming request. Maghintay ng isang minuto at subukang muli.",
+      "error": "Hindi naipadala ang link. Pakisubukang muli."
+    },
+    "qr": {
+      "scanTitle": "I-scan ang iyong login QR",
+      "scanHint": "Itutok ang camera sa login QR na na-save mo mula sa iyong Profile.",
+      "uploadImage": "Mag-upload ng larawan ng QR",
+      "cancel": "Kanselahin",
+      "loggingIn": "Nagla-log in...",
+      "notLoginQr": "Hindi SnapStock login QR ang QR code na iyan.",
+      "invalid": "Napalitan o na-revoke na ang login QR na ito. Mag-log in gamit ang password at gumawa ng bago sa iyong Profile.",
+      "noCamera": "Hindi mabuksan ang camera. Payagan ang camera, o mag-upload na lang ng larawan ng iyong QR.",
+      "noQrInImage": "Walang nakitang QR code sa larawang iyan.",
+      "tooMany": "Masyadong maraming subok. Maghintay ng isang minuto at subukang muli.",
+      "error": "Hindi makapag-log in. Pakisubukang muli.",
+      "title": "Login QR",
+      "hint": "Gumawa ng QR code para makapag-log in nang hindi tina-type ang email at password.",
+      "activeSince": "Aktibo mula {date}.",
+      "create": "Gumawa ng login QR",
+      "regenerate": "Gumawa ng bagong login QR",
+      "revoke": "I-revoke ang login QR",
+      "revokeConfirm": "I-revoke ang iyong login QR? Titigil ito agad sa paggana.",
+      "passwordPrompt": "Ilagay ang iyong password para gumawa ng login QR. Titigil sa paggana ang dati mong QR.",
+      "password": "Password",
+      "submit": "Gumawa ng QR",
+      "submitting": "Ginagawa...",
+      "wrongPassword": "Mali ang password.",
+      "createError": "Hindi nagawa ang QR. Pakisubukang muli.",
+      "warning": "Kahit sino na may hawak ng QR na ito ay makakapag-log in bilang ikaw. Isang beses lang ito ipapakita, kaya i-download na ngayon at ingatan.",
+      "download": "I-download ang larawan ng QR",
+      "done": "Tapos na"
     }
   },
   "language": {

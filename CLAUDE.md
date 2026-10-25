@@ -17,6 +17,7 @@ A mobile-first POS and inventory app ("SnapStock" / Public Market POS) for selle
 ```bash
 .venv/Scripts/activate                        # Windows; source .venv/bin/activate on macOS/Linux
 uvicorn app.main:app --reload --port 6767      # run
+pip install -r requirements-dev.txt            # runtime deps + pytest/httpx
 pytest                                          # run all tests
 pytest tests/test_inventory.py                  # run one file
 pytest tests/test_inventory.py::test_name -v    # run one test
@@ -50,7 +51,8 @@ Routers → services → models, strictly. Business logic (stock math, receipt g
 - `app/schemas/` — Pydantic models. All response/request schemas extend `CamelModel` (`app/schemas/base.py`), which auto-converts `snake_case` ↔ `camelCase` at the API boundary (`alias_generator=to_camel`, `populate_by_name=True`, `from_attributes=True`). Never hand-roll camelCase field names — extend `CamelModel` and let it do the conversion.
 - `app/core/deps.py` — `get_current_user`, `require_seller`, `require_buyer` FastAPI dependencies for auth/role gating. Every seller-scoped router endpoint takes `seller: User = Depends(require_seller)` and filters queries by `seller.id` — there is no separate ownership-check layer, so a missing filter is a data leak, not just a 403.
 - `app/core/rate_limit.py` — shared `slowapi` `Limiter` instance, applied to auth endpoints via decorators + limits from `Settings` (`AUTH_REGISTER_RATE_LIMIT`, `AUTH_LOGIN_RATE_LIMIT`).
-- `app/services/uploads.py` — `validate_image` / `save_image` (JPEG/PNG/WebP into `UPLOAD_DIR`, served at `/uploads`). Use it for every upload: product photos, payout QR codes, payment screenshots, and both search-by-image endpoints.
+- Password reset (`/auth/forgot-password`, `/auth/reset-password`, `services/password_reset.py`): the reset token is a stateless JWT with `purpose: password_reset` and a fingerprint of the current password hash, so it stops working once the password changes (single-use, no table). `forgot-password` returns the same 202 for unknown emails and sends the email in a background task, so it doesn't reveal which emails have accounts. Mail goes through `services/email.send_email` (SMTP settings `SMTP_*`, link base `FRONTEND_URL`); with `SMTP_HOST` empty it logs the email instead. Signed-in users change their password the same way: Profile → Security tab → `POST /auth/change-password` (`features/auth/ChangePasswordSection.jsx`) emails a reset link to their own address, and the new password is set on `/reset-password`.
+- `app/services/uploads.py` — `validate_image` / `save_image` (JPEG/PNG/WebP, max `MAX_UPLOAD_BYTES`). Use it for every upload: product photos, payout QR codes, payment screenshots, and both search-by-image endpoints. `STORAGE_BACKEND=local` writes to disk (dev); `s3` writes to `S3_BUCKET` (production). Public uploads return `/uploads/<file>` (served from `UPLOAD_DIR` locally, redirected to a presigned S3 URL in production). Payment screenshots use `save_image(..., private=True)`, which returns a `private/<file>` storage key: always pass it through `uploads.private_url()` when returning it, and only to the sale's seller or buyer.
 - Seller payout accounts (`/seller/payout-accounts`, `services/payouts.py`, `models/payout_account.py`) belong to `seller_profiles` and reuse the `payment_method` enum without `cash`. The first account becomes the default, and setting another as default clears the old one. `features/payouts/PaymentMethodPicker.jsx` always offers Cash, greys out methods the seller has no account for, and shows the matching QR, both in the buyer's `BuySheet` and on the seller's walk-in `PaymentSheet`.
 
 ### Money, stock, and stock movements
@@ -88,9 +90,87 @@ src/
 - `lib/offlineQueue.js` queues quick-sell requests in `localStorage` when a request fails with a *network* error (no response, not a server rejection) and replays them on reconnect, stopping at the first entry that still fails on the network but dropping entries the server actively rejects (e.g. stock now gone). This is the highest-value resilience feature for the target environment (unreliable market wifi) — preserve this network-error-vs-rejection distinction in any related changes. Right now nothing adds to the queue: `features/inventory/QuickSellSheet.jsx` isn't mounted, and walk-in sales go through the New Sale cart (`POST /sales`), which isn't queued. `InventoryPage` only drains old entries.
 - `lib/i18n/` is a minimal two-JSON-dictionary (`en.json`, `tl.json`) lookup with dotted-key access and fallback to English — not a full i18n library. New user-facing strings should go through `translate()`/the `t()` helper rather than being hardcoded, in both dictionaries. `t(key, params)` fills `{name}` placeholders.
 - `/analytics` (`features/analytics/`) is the Analytics hub: an insights feed plus Sales, Profit, Stock and Forecast tabs, selected with `?tab=`. The seller's receipt list is its own nav item, Transactions (`/transactions`, `features/sales/TransactionsPage.jsx`); the old `/sales/history` redirects there. Insights arrive as `code` + `params` and are translated in `insightText.js`.
-- Routing/role-gating is centralized in `App.jsx` via `<ProtectedRoute role="seller"|"buyer">`; `/r/:receiptCode` (public receipt) and `/login`/`/register` are the only unauthenticated routes.
+- Routing/role-gating is centralized in `App.jsx` via `<ProtectedRoute role="seller"|"buyer">`; `/r/:receiptCode` (public receipt), `/login`, `/register`, `/forgot-password` and `/reset-password` are the only unauthenticated routes.
 - TanStack Query is used for all server state; mutations call `invalidateQueries` on the relevant list query rather than manually patching cache.
 
 ### Naming convention at the API boundary
 
 Python/SQL is `snake_case`; the wire format and all frontend code is `camelCase`. The conversion happens automatically via `CamelModel` on the backend — never introduce manual camelCase↔snake_case mapping in routers, services, or frontend API wrappers.
+
+<!-- BEGIN AWS Agent Toolkit rules -->
+# AWS Guidance for the new AWS experience
+
+This user has signed up for the new AWS experience. This experience lets you sign into AWS using a social provider and requires the following additional context.
+
+Where this guidance conflicts with the project's own instructions, the project's instructions take precedence.
+
+## Context
+
+### Terminology:
+
+- Say "project" instead of "account" — a project contains an AWS account and settings for sharing with other collaborators
+- Say "team member" instead of "IAM user" — users are invited by email, not created or federated in IAM
+- Say "AWS Settings" when referring to management tasks at [settings.aws.com](https://settings.aws.com/) (project management, billing, team members, spend limits). Users view their actual AWS resources in the AWS Management Console.
+- Say "selected Region" when referring to the user's Region — not "home Region"
+- The user has a managed IAM experience. This includes a managed service control policies (SCP) and resource control policies (RCP) that govern the use of AWS. They will still need to use IAM to create policies to let services work with each other. If there are questions about the SCPs or RCPs, go to the documentation at https://docs.aws.amazon.com/accounts/latest/reference/scps-and-rcps-for-projects.html
+
+### Constraints:
+
+- All projects share a single AWS Region determined by the user's contact address. Resources cannot be created in other Regions
+- When developing:
+  - MUST create all Regional resources in the project's assigned Region
+  - You CAN create AWS WAF and Cloudwatch Logs resources in us-east-1 when there are global resources (like a global WAF instance) that require a connection to dependencies in us-east-1. You should not use these for any other reason, because resources in the selected Region will provide lower cost (due to no cross-Region traffic), increased availability (due to no cross-Region traffic), and easier manageability (due to not needing to look in another Region). When you need to do an inventory of resources, you need to look in both the selected Region and us-east-1 for Cloudwatch Logs or WAF resources.
+  - MUST NOT attempt to create Lambda, API Gateway, or other Regional resources in any other Region
+  - MUST direct users to confirm their Region in AWS Settings > View all projects > Overview > Additional Info > Region. If the user cannot confirm their Region, check in ~/.aws/config
+  - MUST NOT use Lambda@Edge — excluded from both Lambda and CloudFront
+  - MUST NOT use CloudFormation StackSets — no multi-account or multi-Region deployments
+  - MUST NOT attempt cross-Region actions — no cross-Region replication for DynamoDB/S3/RDS, no multi-Region KMS keys
+  - MUST NOT use Route 53 cross-Region routing — geolocation, latency-based, and failover routing policies are not available
+  - CloudFront is a global service and its actions ARE allowed in `us-east-1`. A user can create a CloudFront distribution pointing to their project-region Lambda function URL or API Gateway. However, Lambda and API Gateway themselves MUST NOT be created in `us-east-1` — they must be in the project Region.
+  - Reduced availability in `eu-north-1` specifically: Amazon Rekognition, Amazon Textract, Amazon Personalize, AWS App Runner are not available in that Region.
+- IAM permissions for human access are managed by AWS. Don't assign roles to team members unless absolutely necessary
+- The user may have a spend limit if they are on the paid plan. The limit that pauses their project if it's exceeded. If resources suddenly become inaccessible, ask if they have a spend limit configured. Only project owners can modify a spend limit.
+- When developing:
+  - MUST ask about spend limit status if the user reports sudden "Access Denied" errors on operations that previously worked
+  - MUST direct users to check spend status in AWS Settings > Billing
+  - MUST check if a user has upgraded their account to the paid plan
+  - MUST ask the user if they want to clean up the successfully created resources or keep them to reduce cost
+- The user sets up billing, creates spend limits, and retrieves and pays invoices in AWS Settings. The user creates budgets and optimizes their costs in the AWS Billing and Cost Management console
+- Not all AWS services are available. If a service isn't working, do the following:
+  1. Run the command `aws freetier get-account-plan-state`
+  2. If accountPlanType": "FREE", check the [Free Tier supported services list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#supported-services-free-tier) next,
+  3. If accountPlanType": "PAID", check the [Paid Tier supported services list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#supported-services-paid-plan).
+  4. If neither list shows the service, check the [Not supported for this experience list](https://docs.aws.amazon.com/accounts/latest/reference/supported-services-sign-up-new.html#unsupported-services). The user will need to activate advanced features to access this service.
+- Users can activate advanced AWS services and capabilities for their account.
+- Before starting a task, check whether a relevant AWS skill is available. Load the skill with retrieve_skill and prefer its guidance over general knowledge.
+
+### Help level
+
+- help_level (required): LOW, MEDIUM, or HIGH. While a user is building, you MUST ask the user: "How much guidance would you like from me? Low (I only flag security risks), medium (I ask a couple of clarifying questions if something seems off), or high (I explain what I'm doing, suggest alternatives, and flag best practices)."
+
+You CAN update this rule file to save a user's help_level.
+
+Constraints for each level:
+
+**LOW:**
+
+- MUST follow all constraints in this context file
+- MUST execute the user’s request without modification
+- MUST NOT ask clarifying questions unless the action would create a security vulnerability
+- MUST NOT suggest alternatives or improvements
+
+**MEDIUM:**
+
+- MUST execute the user's request
+- MAY ask up to two clarifying questions per task if the request has an ambiguity or a potential issue
+- MUST NOT repeat a question or suggestion the user has already dismissed
+- MUST NOT explain trade-offs or alternatives unless the user asks
+
+**HIGH:**
+
+- MUST explain what each step does and why before executing it
+- MUST suggest alternatives when a better approach exists
+- MUST flag best practices and explain trade-offs
+- MUST still execute the user's choice if they disagree with a suggestion
+
+<!-- END AWS Agent Toolkit rules -->

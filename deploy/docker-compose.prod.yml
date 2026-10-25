@@ -1,0 +1,39 @@
+# Production stack: Caddy (HTTPS + frontend + reverse proxy) and the FastAPI backend.
+# The database is RDS and uploads go to S3, so there is no db service here.
+#
+# Expects next to this file:
+#   dist/      frontend build (`npm run build` with VITE_API_URL=/api/v1)
+#   .env.prod  backend settings, written by fetch-env.sh from SSM Parameter Store
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-snapstock.duckdns.org}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./dist:/srv:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    image: snapstock-backend:${BACKEND_TAG:-latest}
+    restart: unless-stopped
+    env_file: .env.prod
+    # Not published on the host: only Caddy can reach it (the backend trusts its X-Forwarded-For).
+    expose:
+      - "6767"
+    extra_hosts:
+      # Lets a local test run reach Postgres on the host machine; unused in production.
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  caddy-data:
+  caddy-config:

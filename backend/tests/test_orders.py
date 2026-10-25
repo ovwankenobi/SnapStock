@@ -10,7 +10,8 @@ PROOF = {"file": ("gcash.png", b"fake-png-bytes", "image/png")}
 
 @pytest.fixture(autouse=True)
 def _upload_dir(tmp_path, monkeypatch):
-    monkeypatch.setattr(settings, "UPLOAD_DIR", str(tmp_path))
+    monkeypatch.setattr(settings, "UPLOAD_DIR", str(tmp_path / "public"))
+    monkeypatch.setattr(settings, "PRIVATE_UPLOAD_DIR", str(tmp_path / "private"))
 
 
 def _order(client, buyer_token, product_id, quantity=2, payment_method="gcash"):
@@ -67,7 +68,7 @@ def test_digital_order_needs_proof_then_confirm_counts_it_for_the_buyer(client):
     upload = client.post(f"/api/v1/me/orders/{sale['id']}/proof", files=PROOF, headers=_auth(buyer))
     assert upload.status_code == 200, upload.text
     order = upload.json()
-    assert order["paymentProofUrl"].startswith("/uploads/proof_")
+    assert order["paymentProofUrl"].startswith("/api/v1/uploads/private/proof_")
     assert order["proofSubmittedAt"] is not None
     assert order["sellerName"] == "Nena's Store"
 
@@ -220,3 +221,35 @@ def test_plain_messages_have_no_order(client):
     client.post(f"/api/v1/conversations/{conversation['id']}/messages", json={"body": "hi"}, headers=_auth(buyer))
     _, [message] = _seller_thread(client, seller)
     assert message["saleId"] is None and message["order"] is None
+
+
+def test_payment_proof_is_private_and_served_only_by_signed_link(client, tmp_path):
+    _, buyer, product = _setup(client)
+    sale = _order(client, buyer, product["id"])
+    url = client.post(f"/api/v1/me/orders/{sale['id']}/proof", files=PROOF, headers=_auth(buyer)).json()[
+        "paymentProofUrl"
+    ]
+
+    # Stored outside the publicly served upload directory.
+    filename = url.split("?")[0].rsplit("/", 1)[1]
+    assert (tmp_path / "private" / filename).exists()
+    assert client.get(f"/uploads/{filename}").status_code == 404
+
+    signed = client.get(url)
+    assert signed.status_code == 200
+    assert signed.content == PROOF["file"][1]
+
+    tampered = client.get(url.replace("signature=", "signature=0"))
+    assert tampered.status_code == 403
+    expired = client.get(url.split("?")[0], params={"expires": 1, "signature": "x"})
+    assert expired.status_code == 403
+
+
+def test_oversized_upload_is_rejected(client, monkeypatch):
+    _, buyer, product = _setup(client)
+    sale = _order(client, buyer, product["id"])
+    monkeypatch.setattr(settings, "MAX_UPLOAD_BYTES", 4)
+
+    response = client.post(f"/api/v1/me/orders/{sale['id']}/proof", files=PROOF, headers=_auth(buyer))
+    assert response.status_code == 400
+    assert "MB or smaller" in response.json()["detail"]

@@ -1,4 +1,11 @@
 {
+  "profile": {
+    "tabs": {
+      "profile": "Profile",
+      "payment": "Payment",
+      "security": "Security"
+    }
+  },
   "common": {
     "appName": "SnapStock"
   },
@@ -22,7 +29,10 @@
       "submitting": "Logging in...",
       "noAccount": "New here?",
       "createAccount": "Create an account",
-      "error": "Incorrect email or password."
+      "error": "Incorrect email or password.",
+      "forgotPassword": "Forgot password?",
+      "resetSuccess": "Password updated. Log in with your new password.",
+      "withQr": "Log in with QR code"
     },
     "register": {
       "chooseRole": "I am a...",
@@ -46,6 +56,68 @@
       "signIn": "Sign in",
       "error": "Something went wrong. Please check your details and try again.",
       "emailTaken": "That email is already registered."
+    },
+    "forgot": {
+      "title": "Forgot your password?",
+      "intro": "Enter the email you signed up with and we'll send you a link to set a new password.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "submitting": "Sending...",
+      "sent": "If an account exists for that email, we've sent a reset link. Check your inbox and spam folder. The link expires in 30 minutes.",
+      "error": "Couldn't send the link. Please try again.",
+      "tooMany": "Too many requests. Please wait a minute and try again.",
+      "backToLogin": "Back to log in"
+    },
+    "reset": {
+      "title": "Set a new password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Save new password",
+      "submitting": "Saving...",
+      "tooShort": "Password must be at least 8 characters.",
+      "mismatch": "Passwords don't match.",
+      "invalidLink": "This reset link is invalid or has expired.",
+      "requestNew": "Request a new link",
+      "error": "Couldn't update your password. Please try again."
+    },
+    "changePassword": {
+      "title": "Password",
+      "hint": "We'll email a link to your email. Open it to set your new password.",
+      "submit": "Email me a change-password link",
+      "submitting": "Sending...",
+      "sent": "Link sent to {email}. Check your inbox and spam folder. The link expires in 30 minutes.",
+      "sendAgain": "Send again",
+      "tooMany": "Too many requests. Please wait a minute and try again.",
+      "error": "Couldn't send the link. Please try again."
+    },
+    "qr": {
+      "scanTitle": "Scan your login QR",
+      "scanHint": "Point the camera at the login QR you saved from your Profile.",
+      "uploadImage": "Upload QR image",
+      "cancel": "Cancel",
+      "loggingIn": "Logging in...",
+      "notLoginQr": "That QR code isn't a SnapStock login QR.",
+      "invalid": "This login QR was replaced or revoked. Log in with your password and make a new one on your Profile.",
+      "noCamera": "Can't open the camera. Allow camera access, or upload a picture of your QR instead.",
+      "noQrInImage": "No QR code found in that image.",
+      "tooMany": "Too many attempts. Please wait a minute and try again.",
+      "error": "Couldn't log in. Please try again.",
+      "title": "Login QR",
+      "hint": "Make a QR code that logs you in without typing your email and password.",
+      "activeSince": "Active since {date}.",
+      "create": "Create login QR",
+      "regenerate": "Regenerate login QR",
+      "revoke": "Revoke login QR",
+      "revokeConfirm": "Revoke your login QR? It will stop working right away.",
+      "passwordPrompt": "Enter your password to make a login QR. Any QR you made before will stop working.",
+      "password": "Password",
+      "submit": "Create QR",
+      "submitting": "Creating...",
+      "wrongPassword": "Incorrect password.",
+      "createError": "Couldn't create the QR. Please try again.",
+      "warning": "Anyone with this QR can log in as you. It is shown only once, so download it now and keep it safe.",
+      "download": "Download QR image",
+      "done": "Done"
     }
   },
   "language": {

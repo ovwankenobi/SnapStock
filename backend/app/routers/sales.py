@@ -20,6 +20,7 @@ from app.schemas.sale import (
     SaleStatusChange,
 )
 from app.services import sales as sales_service
+from app.services import uploads as uploads_service
 
 router = APIRouter(prefix="/sales", tags=["sales"])
 
@@ -53,7 +54,7 @@ def _to_sale_read(db: Session, sale: Sale) -> SaleRead:
         receipt_code=sale.receipt_code,
         note=sale.note,
         created_at=sale.created_at,
-        payment_proof_url=sale.payment_proof_url,
+        payment_proof_url=uploads_service.private_url(sale.payment_proof_url),
         proof_submitted_at=sale.proof_submitted_at,
         items=[SaleItemRead.model_validate(item) for item in sale.items],
     )
@@ -147,7 +148,7 @@ def list_sales(
             receipt_code=sale.receipt_code,
             note=sale.note,
             created_at=sale.created_at,
-            payment_proof_url=sale.payment_proof_url,
+            payment_proof_url=uploads_service.private_url(sale.payment_proof_url),
             proof_submitted_at=sale.proof_submitted_at,
             item_count=len(sale.items),
         )

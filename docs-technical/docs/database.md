@@ -36,6 +36,8 @@ erDiagram
         string phone
         string preferred_language
         bool is_active
+        string qr_login_key_hash UK "sha256 of the login QR key"
+        timestamptz qr_login_created_at
     }
     SELLER_PROFILES {
         uuid id PK

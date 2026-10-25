@@ -215,7 +215,7 @@ def submit_payment_proof(db: Session, sale_id: uuid.UUID, buyer_id: uuid.UUID, f
     if sale.payment_method == PaymentMethod.CASH:
         raise PaymentProofNotAllowedError("Cash orders are paid to the seller in person")
 
-    sale.payment_proof_url = uploads_service.save_image(file, prefix=f"proof_{sale.id}")
+    sale.payment_proof_url = uploads_service.save_image(file, prefix=f"proof_{sale.id}", private=True)
     sale.proof_submitted_at = now_utc()
     db.commit()
     db.refresh(sale)

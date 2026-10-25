@@ -1,14 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import AppLayout from "../../components/AppLayout";
 import Icon from "../../components/Icon";
+import SegmentedControl from "../../components/SegmentedControl";
 import { useTheme } from "../../hooks/useTheme";
 import { buyerNavItems, sellerNavItems } from "../../lib/nav";
 import PayoutAccountsSection from "../payouts/PayoutAccountsSection";
 import { useAuth } from "./AuthContext";
+import ChangePasswordSection from "./ChangePasswordSection";
 import styles from "./auth.module.css";
 import LanguageToggle from "./LanguageToggle";
+import QrLoginCard from "./QrLoginCard";
 
 const BUSINESS_TYPE_LABEL_KEYS = {
   retail: "auth.register.businessTypeRetail",
@@ -32,6 +35,10 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const isSeller = user.role === "seller";
+  // Buyers have no payout accounts, so they only get Profile and Security.
+  const tabs = isSeller ? ["profile", "payment", "security"] : ["profile", "security"];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = tabs.includes(searchParams.get("tab")) ? searchParams.get("tab") : "profile";
 
   function handleLogout() {
     logout();
@@ -73,115 +80,131 @@ export default function ProfilePage() {
   return (
     <AppLayout navItems={isSeller ? sellerNavItems() : buyerNavItems()} title="Profile">
       <div className={styles["profile-page"]}>
-        <div className={styles["profile-language"]}>
-          <div className={styles["field-label"]}>{t("common.appName")} · {t("language.english")} / {t("language.tagalog")}</div>
-          <LanguageToggle />
-        </div>
+        <SegmentedControl
+          options={tabs.map((value) => ({ value, label: t(`profile.tabs.${value}`) }))}
+          value={tab}
+          onChange={(value) => setSearchParams({ tab: value }, { replace: true })}
+        />
 
-        <form id="profile-form" className={styles["auth-form"]} onSubmit={handleSubmit}>
-          <div>
-            <label className={styles["field-label"]} htmlFor="profile-email">
-              Email
-            </label>
-            <input id="profile-email" className={styles["text-input"]} value={user.email} disabled />
-          </div>
-          <div>
-            <label className={styles["field-label"]} htmlFor="profile-fullName">
-              Full name
-            </label>
-            <input
-              id="profile-fullName"
-              className={styles["text-input"]}
-              required
-              value={draft.fullName}
-              onChange={(event) => updateField("fullName", event.target.value)}
-            />
-          </div>
-          <div>
-            <label className={styles["field-label"]} htmlFor="profile-phone">
-              Phone
-            </label>
-            <input
-              id="profile-phone"
-              className={styles["text-input"]}
-              value={draft.phone}
-              onChange={(event) => updateField("phone", event.target.value)}
-            />
-          </div>
+        {tab === "profile" && (
+          <>
+            <div className={styles["profile-language"]}>
+              <div className={styles["field-label"]}>{t("common.appName")} · {t("language.english")} / {t("language.tagalog")}</div>
+              <LanguageToggle />
+            </div>
 
-          {isSeller && (
-            <>
+            <form id="profile-form" className={styles["auth-form"]} onSubmit={handleSubmit}>
               <div>
-                <label className={styles["field-label"]} htmlFor="profile-businessName">
-                  Business name
+                <label className={styles["field-label"]} htmlFor="profile-email">
+                  Email
+                </label>
+                <input id="profile-email" className={styles["text-input"]} value={user.email} disabled />
+              </div>
+              <div>
+                <label className={styles["field-label"]} htmlFor="profile-fullName">
+                  Full name
                 </label>
                 <input
-                  id="profile-businessName"
+                  id="profile-fullName"
                   className={styles["text-input"]}
                   required
-                  value={draft.businessName}
-                  onChange={(event) => updateField("businessName", event.target.value)}
+                  value={draft.fullName}
+                  onChange={(event) => updateField("fullName", event.target.value)}
                 />
               </div>
               <div>
-                <div className={styles["field-label"]}>Business type</div>
-                <div className={styles["chip-row"]}>
-                  {Object.keys(BUSINESS_TYPE_LABEL_KEYS).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      className={`${styles["type-toggle"]} ${draft.businessType === type ? styles["type-toggle-active"] : ""}`}
-                      onClick={() => updateField("businessType", type)}
-                    >
-                      {t(BUSINESS_TYPE_LABEL_KEYS[type])}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <label className={styles["field-label"]} htmlFor="profile-address">
-                  Address
+                <label className={styles["field-label"]} htmlFor="profile-phone">
+                  Phone
                 </label>
                 <input
-                  id="profile-address"
+                  id="profile-phone"
                   className={styles["text-input"]}
-                  value={draft.address}
-                  onChange={(event) => updateField("address", event.target.value)}
+                  value={draft.phone}
+                  onChange={(event) => updateField("phone", event.target.value)}
                 />
               </div>
-              <div>
-                <label className={styles["field-label"]} htmlFor="profile-description">
-                  Description
-                </label>
-                <textarea
-                  id="profile-description"
-                  className={styles.textarea}
-                  value={draft.description}
-                  onChange={(event) => updateField("description", event.target.value)}
-                />
+
+              {isSeller && (
+                <>
+                  <div>
+                    <label className={styles["field-label"]} htmlFor="profile-businessName">
+                      Business name
+                    </label>
+                    <input
+                      id="profile-businessName"
+                      className={styles["text-input"]}
+                      required
+                      value={draft.businessName}
+                      onChange={(event) => updateField("businessName", event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <div className={styles["field-label"]}>Business type</div>
+                    <div className={styles["chip-row"]}>
+                      {Object.keys(BUSINESS_TYPE_LABEL_KEYS).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          className={`${styles["type-toggle"]} ${draft.businessType === type ? styles["type-toggle-active"] : ""}`}
+                          onClick={() => updateField("businessType", type)}
+                        >
+                          {t(BUSINESS_TYPE_LABEL_KEYS[type])}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className={styles["field-label"]} htmlFor="profile-address">
+                      Address
+                    </label>
+                    <input
+                      id="profile-address"
+                      className={styles["text-input"]}
+                      value={draft.address}
+                      onChange={(event) => updateField("address", event.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className={styles["field-label"]} htmlFor="profile-description">
+                      Description
+                    </label>
+                    <textarea
+                      id="profile-description"
+                      className={styles.textarea}
+                      value={draft.description}
+                      onChange={(event) => updateField("description", event.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+
+            </form>
+
+            {error && (
+              <div className={styles["form-error"]} role="alert">
+                {error}
               </div>
-            </>
-          )}
+            )}
 
-        </form>
-
-        {/* Outside the profile form: the payout section has its own form, and forms can't nest. */}
-        {isSeller && <PayoutAccountsSection />}
-
-        {error && (
-          <div className={styles["form-error"]} role="alert">
-            {error}
-          </div>
+            <button
+              type="submit"
+              form="profile-form"
+              className={styles["submit-button"]}
+              disabled={status === "saving"}
+            >
+              {status === "saving" ? "Saving..." : status === "saved" ? "Saved" : "Save Changes"}
+            </button>
+          </>
         )}
 
-        <button
-          type="submit"
-          form="profile-form"
-          className={styles["submit-button"]}
-          disabled={status === "saving"}
-        >
-          {status === "saving" ? "Saving..." : status === "saved" ? "Saved" : "Save Changes"}
-        </button>
+        {tab === "payment" && <PayoutAccountsSection />}
+
+        {tab === "security" && (
+          <>
+            <ChangePasswordSection />
+            <QrLoginCard />
+          </>
+        )}
 
         <div className={styles["profile-account"]}>
           <div className={styles["field-label"]}>{t("nav.account")}</div>

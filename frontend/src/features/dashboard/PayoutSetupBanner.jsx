@@ -15,7 +15,7 @@ export default function PayoutSetupBanner() {
 
   return (
     <div className={styles["low-stock-banner"]}>
-      <button type="button" className={styles["low-stock-banner-body"]} onClick={() => navigate("/profile")}>
+      <button type="button" className={styles["low-stock-banner-body"]} onClick={() => navigate("/profile?tab=payment")}>
         <Icon name="warning" size={16} color="var(--color-warning)" />
         <span>{t("payouts.nudge")}</span>
       </button>

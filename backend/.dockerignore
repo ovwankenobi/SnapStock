@@ -1,0 +1,12 @@
+.venv/
+.venv-py39/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+uploads/
+uploads_private/
+tests/
+scripts/
+*.log
+requirements-dev.txt
