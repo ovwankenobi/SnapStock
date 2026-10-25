@@ -1,0 +1,1491 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Architecture, API reference, and database schema for the Public Market POS backend and frontend.">
+      
+      
+      
+      
+        <link rel="prev" href="../inventory-service/">
+      
+      
+        <link rel="next" href="../messaging-service/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Sales Service - SnapStock — Technical Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sales-service" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SnapStock — Technical Docs" class="md-header__button md-logo" aria-label="SnapStock — Technical Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SnapStock — Technical Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sales Service
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../inventory-service/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../database/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Database Schema
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deferred-features/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deferred Features
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SnapStock — Technical Docs" class="md-nav__button md-logo" aria-label="SnapStock — Technical Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SnapStock — Technical Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/data-flow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/unit-conversion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Unit Conversion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../inventory-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Inventory Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sales Service
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sales Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get-salesbuyerssearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/buyers/search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidvoid-and-post-salessaleidrefund" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/void and POST /sales/{saleId}/refund
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidproof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidconfirm-payment-and-post-salessaleidreject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/confirm-payment and POST /sales/{saleId}/reject
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-salesreceiptreceiptcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/receipt/{receiptCode}
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-salessaleid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/{saleId}
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buyer-facing-ordering-receipts-approuterscatalogpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buyer-facing ordering &amp; receipts (app/routers/catalog.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Buyer-facing ordering &amp; receipts (app/routers/catalog.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-catalogproductsproductidorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /catalog/products/{productId}/order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-meorderssaleid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /me/orders/{saleId}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-meorderssaleidproof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /me/orders/{saleId}/proof
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-meorderssaleidcancel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /me/orders/{saleId}/cancel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-mereceipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /me/receipts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-analytics-endpoints-approutersanalyticspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related: analytics endpoints (app/routers/analytics.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messaging-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Messaging Service
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../payouts-service/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Payout Accounts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../database/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database Schema
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deferred-features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deferred Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#get-salesbuyerssearch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/buyers/search
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidvoid-and-post-salessaleidrefund" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/void and POST /sales/{saleId}/refund
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidproof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#post-salessaleidconfirm-payment-and-post-salessaleidreject" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /sales/{saleId}/confirm-payment and POST /sales/{saleId}/reject
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-sales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-salesreceiptreceiptcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/receipt/{receiptCode}
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#get-salessaleid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /sales/{saleId}
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buyer-facing-ordering-receipts-approuterscatalogpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Buyer-facing ordering &amp; receipts (app/routers/catalog.py)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Buyer-facing ordering &amp; receipts (app/routers/catalog.py)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#post-catalogproductsproductidorder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /catalog/products/{productId}/order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-meorderssaleid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /me/orders/{saleId}
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-meorderssaleidproof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /me/orders/{saleId}/proof
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-meorderssaleidcancel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        POST /me/orders/{saleId}/cancel
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-mereceipts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GET /me/receipts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-analytics-endpoints-approutersanalyticspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related: analytics endpoints (app/routers/analytics.py)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sales-service">Sales Service<a class="headerlink" href="#sales-service" title="Permanent link">&para;</a></h1>
+<p>Owns <code>Sale</code>/<code>SaleItem</code> data and is the only writer of the <code>sales</code> table. Router:
+<code>app/routers/sales.py</code> (prefix <code>/sales</code>), business logic in <code>app/services/sales.py</code>. Stock
+deduction is delegated to the Inventory Service's <code>apply_stock_change</code> — see
+<a href="../../architecture/overview/">Architecture Overview</a>.</p>
+<p>All money fields are integer cents. All endpoints require <code>Authorization: Bearer &lt;token&gt;</code> and
+<code>require_seller</code> <strong>except</strong> <code>GET /sales/receipt/{receiptCode}</code>, which is the one public,
+unauthenticated endpoint in the whole API.</p>
+<h2 id="get-salesbuyerssearch"><code>GET /sales/buyers/search</code><a class="headerlink" href="#get-salesbuyerssearch" title="Permanent link">&para;</a></h2>
+<p>Search registered buyers by name, email or phone. The current frontend doesn't call it, because
+the seller's New Sale → Buyer Account tab now only approves online orders (see below).</p>
+<p><strong>Query:</strong> <code>q</code> (min length 2). <strong>Response:</strong> <code>list[BuyerSearchResult]</code> (<code>id</code>, <code>fullName</code>, <code>email</code>, <code>phone</code>).</p>
+<h2 id="post-sales"><code>POST /sales</code><a class="headerlink" href="#post-sales" title="Permanent link">&para;</a></h2>
+<p>Create a sale — either itemized (cart of products) or a walk-in lump sum with no line items.</p>
+<p><strong>Request (<code>SaleCreate</code>):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>saleType</code></td>
+<td><code>itemized</code> | <code>walk_in</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>buyerId</code></td>
+<td>UUID | null</td>
+<td><strong>required</strong> if <code>itemized</code>; <strong>must be null</strong> if <code>walk_in</code></td>
+</tr>
+<tr>
+<td><code>paymentMethod</code></td>
+<td><code>cash</code>|<code>gcash</code>|<code>maya</code>|<code>bank_transfer</code>|<code>other</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>items</code></td>
+<td><code>{ productId, quantity, unitPriceCents?, byPiece? }[]</code></td>
+<td>required (non-empty) if <code>itemized</code>. <code>unitPriceCents</code> is the price agreed during the sale; omitted = the product's current price. It never changes the product. <code>byPiece: true</code> sells single pieces of a <code>bundle</code> product at bundle price ÷ pieces per bundle (400 for other unit types); see <a href="../../architecture/unit-conversion/">Unit Conversion</a>. <code>POST /catalog/products/{id}/order</code> takes the same optional <code>byPiece</code>.</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td>string | null</td>
+<td></td>
+</tr>
+<tr>
+<td><code>totalCents</code></td>
+<td>int | null</td>
+<td>only for a walk-in sale with <strong>no</strong> items (manual lump-sum amount); mutually exclusive with <code>items</code></td>
+</tr>
+<tr>
+<td><code>discountCents</code></td>
+<td>int, default 0</td>
+<td>sale-level amount off the subtotal; only with <code>items</code>, and at most the subtotal</td>
+</tr>
+</tbody>
+</table>
+<p>Validated server-side (<code>SaleCreate.check_consistency</code>): exactly one of <code>items</code> or <code>totalCents</code>
+must be provided, and <code>buyerId</code> presence must match <code>saleType</code>.</p>
+<p><code>subtotalCents</code> = the sum of line totals at the charged prices; <code>totalCents</code> = <code>subtotalCents - discountCents</code>.
+Each line snapshots <code>listPriceCentsSnapshot</code> (the product price at sale time), <code>unitPriceCentsSnapshot</code>
+(what was charged) and, server-side only, the unit cost. The cost is never returned to buyers.</p>
+<p>Stock is validated for <strong>every</strong> line item (duplicate <code>productId</code>s aggregated first) before any
+of them are deducted — a multi-item sale either fully succeeds or fully fails.</p>
+<p><strong>Response:</strong> <code>SaleRead</code> (201). <strong>Errors:</strong> <code>404</code> (<code>BuyerNotFoundError</code>, <code>ProductNotFoundError</code>),
+<code>400</code> (<code>InsufficientStockError</code>, <code>InvalidDiscountError</code>).</p>
+<p><code>POST /products/{id}/quick-sell</code> takes the same optional <code>unitPriceCents</code>. The offline quick-sell
+queue stores the whole payload, so a replayed sale charges the agreed price.</p>
+<h2 id="post-salessaleidvoid-and-post-salessaleidrefund"><code>POST /sales/{saleId}/void</code> and <code>POST /sales/{saleId}/refund</code><a class="headerlink" href="#post-salessaleidvoid-and-post-salessaleidrefund" title="Permanent link">&para;</a></h2>
+<p>Body: <code>{ reason?: string }</code>. Both work only on a <code>completed</code> sale (otherwise <code>409</code>), return
+every line's pieces to stock through <code>apply_stock_change</code> (reasons <code>void</code> / <code>refund</code>, with the
+<code>sale_id</code>), and set <code>status</code>, <code>statusChangedAt</code> and <code>statusReason</code> in one transaction.</p>
+<ul>
+<li><strong>Void</strong> means the sale was entered by mistake. It is excluded from every metric.</li>
+<li><strong>Refund</strong> means a real sale came back. It counts in gross sales and is subtracted as <code>refundsCents</code>.</li>
+</ul>
+<p>Partial refunds are not supported. Response: <code>SaleRead</code>.</p>
+<h2 id="post-salessaleidproof"><code>POST /sales/{saleId}/proof</code><a class="headerlink" href="#post-salessaleidproof" title="Permanent link">&para;</a></h2>
+<p>Seller-only, multipart <code>file</code> (JPEG/PNG/WebP). Attaches or replaces the seller's photo of a walk-in
+customer's digital payment confirmation, stored privately like a buyer's screenshot and returned as
+<code>paymentProofUrl</code>. Only for <code>completed</code> <code>walk_in</code> sales (<code>409</code> otherwise, and <code>409</code> for cash); <code>404</code>
+for another seller's sale; <code>400</code> for a bad image. The frontend calls it right after <code>POST /sales</code>
+when the seller took a photo on the QR screen. A failed upload never undoes the sale, and the
+receipt screen offers <strong>Add payment photo</strong> to try again. Response: <code>SaleRead</code>.</p>
+<h2 id="post-salessaleidconfirm-payment-and-post-salessaleidreject"><code>POST /sales/{saleId}/confirm-payment</code> and <code>POST /sales/{saleId}/reject</code><a class="headerlink" href="#post-salessaleidconfirm-payment-and-post-salessaleidreject" title="Permanent link">&para;</a></h2>
+<p>Seller actions on a buyer's <code>pending_payment</code> order (<code>409</code> for any other status).</p>
+<ul>
+<li><strong>Confirm payment</strong> (no body) sets <code>status = completed</code>. From then on the sale counts in every
+  metric, linked to the buyer. A non-cash order needs a <code>paymentProofUrl</code> first (<code>409</code> otherwise);
+  a cash order is confirmed when the cash is handed over.</li>
+<li><strong>Reject</strong> (body <code>{ reason?: string }</code>) sets <code>status = cancelled</code> and returns the reserved stock
+  with <code>cancel</code> movements. Cancelled orders are excluded from every metric.</li>
+</ul>
+<p><code>GET /sales?status=pending_payment</code> lists the orders waiting for confirmation. <code>SaleRead</code> and
+<code>SaleListItem</code> carry <code>paymentProofUrl</code> / <code>proofSubmittedAt</code>; the public receipt never does.</p>
+<p>In the frontend, sellers approve orders under <strong>New Sale → Buyer Account</strong>
+(<code>/sales?path=account</code>, with <code>&amp;order=&lt;id&gt;</code> for one order, rendered by
+<code>features/sales/OrderApproval.jsx</code>). That tab shows a count of pending orders, the dashboard's
+<code>PendingOrdersBanner</code> links to it, and the chat <a href="../messaging-service/#order-cards">order card</a>
+for each order does too. Sellers can't add items to an order. Walk-in is the only kind of sale
+they ring up themselves.</p>
+<h2 id="get-sales"><code>GET /sales</code><a class="headerlink" href="#get-sales" title="Permanent link">&para;</a></h2>
+<p>List/filter the caller's sales.</p>
+<p><strong>Query params:</strong> <code>range</code> (<code>today</code>|<code>week</code>|<code>month</code>|<code>custom</code>), <code>start</code>/<code>end</code> (required if
+<code>range=custom</code>), <code>saleType</code>, <code>paymentMethod</code>, <code>buyerId</code>, <code>status</code>, <code>page</code>, <code>pageSize</code> (max 100).</p>
+<p><strong>Response:</strong> <code>SaleListResponse</code> — <code>{ items: SaleListItem[], total, page, pageSize }</code>. Each item
+includes a resolved <code>buyerName</code> (looked up separately, not stored on the sale) and <code>itemCount</code>.</p>
+<p>The seller's <strong>Transactions</strong> page (<code>/transactions</code>, <code>features/sales/TransactionsPage.jsx</code>) lists
+these by date range. Its <strong>Delete transaction</strong> action calls the void endpoint, so the sale stays
+listed, marked Voided.</p>
+<h2 id="get-salesreceiptreceiptcode"><code>GET /sales/receipt/{receiptCode}</code><a class="headerlink" href="#get-salesreceiptreceiptcode" title="Permanent link">&para;</a></h2>
+<p><strong>Public, no auth.</strong> What the printed/QR receipt (<code>/r/:receiptCode</code> in the frontend) resolves to.
+Returns only public-safe fields — no buyer/seller IDs, emails, or phone numbers.</p>
+<p><strong>Response (<code>PublicReceipt</code>):</strong> <code>businessName</code>, <code>receiptCode</code>, <code>saleType</code>, <code>items[]</code> (name,
+quantity, unitType, unitPriceCents, lineTotalCents — all read from the <code>sale_items</code> <strong>snapshot</strong>
+columns, not the live product), <code>subtotalCents</code>, <code>discountCents</code>, <code>totalCents</code>, <code>status</code> (never
+the seller's <code>statusReason</code>), <code>paymentMethod</code>, <code>createdAt</code>.</p>
+<h2 id="get-salessaleid"><code>GET /sales/{saleId}</code><a class="headerlink" href="#get-salessaleid" title="Permanent link">&para;</a></h2>
+<p>Fetch one of the caller's sales by ID. 404 if not found or not owned. Response: <code>SaleRead</code>.</p>
+<hr />
+<h2 id="buyer-facing-ordering-receipts-approuterscatalogpy">Buyer-facing ordering &amp; receipts (<code>app/routers/catalog.py</code>)<a class="headerlink" href="#buyer-facing-ordering-receipts-approuterscatalogpy" title="Permanent link">&para;</a></h2>
+<p>These endpoints live in the catalog router file but call directly into
+<code>services.sales.create_sale</code> / read <code>Sale</code> rows, so they belong to this service conceptually.</p>
+<h3 id="post-catalogproductsproductidorder"><code>POST /catalog/products/{productId}/order</code><a class="headerlink" href="#post-catalogproductsproductidorder" title="Permanent link">&para;</a></h3>
+<p>Auth: <code>require_buyer</code>. Places an itemized, buyer-linked order for a single product — the buyer
+version of ringing up a sale. Internally calls <code>create_sale(sale_type=ITEMIZED, buyer_id=buyer.id,
+items=[(product_id, quantity)], status=PENDING_PAYMENT)</code>. Stock is deducted (reserved) right away,
+but the sale counts in no metric until the seller confirms payment (see
+<a href="../../architecture/data-flow/">Data Flow</a>).</p>
+<p><strong>Request (<code>BuyRequest</code>):</strong> <code>{ quantity: int (&gt;0), paymentMethod }</code>
+<strong>Response:</strong> <code>SaleRead</code> (201, <code>status: "pending_payment"</code>). <strong>Errors:</strong> <code>400</code> (<code>InsufficientStockError</code>), <code>404</code> (product not found).</p>
+<p>A <strong>cash</strong> order is reviewable straight away, so placing one also posts an
+<a href="../messaging-service/#order-cards">order card</a> into the buyer's chat with the seller.</p>
+<h3 id="get-meorderssaleid"><code>GET /me/orders/{saleId}</code><a class="headerlink" href="#get-meorderssaleid" title="Permanent link">&para;</a></h3>
+<p>Auth: <code>require_buyer</code>, scoped to the buyer's own orders (<code>404</code> otherwise). <strong>Response:</strong>
+<code>BuyerOrderRead</code> — <code>SaleRead</code> plus <code>sellerName</code> and the seller's <code>payoutAccounts</code>, so the order
+page can show where to pay.</p>
+<h3 id="post-meorderssaleidproof"><code>POST /me/orders/{saleId}/proof</code><a class="headerlink" href="#post-meorderssaleidproof" title="Permanent link">&para;</a></h3>
+<p>Multipart <code>file</code> (JPEG/PNG/WebP). Attaches or replaces the payment screenshot on a pending,
+non-cash order and sets <code>paymentProofUrl</code> / <code>proofSubmittedAt</code>. Each upload posts an
+<a href="../messaging-service/#order-cards">order card</a> for the seller. <strong>Errors:</strong> <code>400</code> (not an
+image), <code>404</code> (not this buyer's order), <code>409</code> (order no longer pending, or a cash order).</p>
+<h3 id="post-meorderssaleidcancel"><code>POST /me/orders/{saleId}/cancel</code><a class="headerlink" href="#post-meorderssaleidcancel" title="Permanent link">&para;</a></h3>
+<p>The buyer withdraws a pending order: status → <code>cancelled</code>, stock returned with <code>cancel</code>
+movements. <code>409</code> if it is no longer pending.</p>
+<h3 id="get-mereceipts"><code>GET /me/receipts</code><a class="headerlink" href="#get-mereceipts" title="Permanent link">&para;</a></h3>
+<p>Auth: <code>require_buyer</code>. Paginated purchase history for the current buyer.</p>
+<p><strong>Query:</strong> <code>page</code>, <code>pageSize</code>. <strong>Response:</strong> <code>BuyerReceiptListResponse</code> — each item includes
+<code>sellerName</code>, <code>saleType</code>, <code>totalCents</code>, <code>status</code>, <code>paymentMethod</code>, <code>receiptCode</code>, <code>createdAt</code>, <code>itemCount</code>.</p>
+<hr />
+<h2 id="related-analytics-endpoints-approutersanalyticspy">Related: analytics endpoints (<code>app/routers/analytics.py</code>)<a class="headerlink" href="#related-analytics-endpoints-approutersanalyticspy" title="Permanent link">&para;</a></h2>
+<p>Read-only aggregations over the same <code>sales</code>/<code>products</code> tables. Prefix <code>/analytics</code>, auth
+<code>require_seller</code>. The service is the package <code>app/services/analytics/</code>: <code>sales.py</code> (sales and
+profit), <code>inventory.py</code> (stock health and demand data), <code>forecast.py</code> (pure forecasting math)
+and <code>insights.py</code> (rules).</p>
+<p><strong>Business days.</strong> "Today", ranges and every daily, weekday or hourly bucket use local calendar
+days in <code>settings.BUSINESS_TIMEZONE</code> (default <code>Asia/Manila</code>), via <code>app/core/business_time.py</code>.
+Presets: <code>today</code>, <code>week</code> (the last 7 local days, including today) and <code>month</code> (the last 30).
+<code>range=custom</code> takes <code>start</code>/<code>end</code> as local <code>YYYY-MM-DD</code> dates, both inclusive.</p>
+<p><strong>Status rules.</strong> Voided, <code>pending_payment</code> and <code>cancelled</code> sales are invisible. Refunded sales count in gross sales and come back out as
+<code>refundsCents</code>. Net sales, transactions, units and profit come from completed sales only. COGS
+comes from the <code>sale_items</code> cost snapshots. <code>costCoveragePct</code> is the share of net sales that has a
+known cost, so a margin based on partial data is labelled as partial.</p>
+<table>
+<thead>
+<tr>
+<th>Method &amp; path</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /analytics/summary</code></td>
+<td>Today's sale count/net sales, low-stock count, week-over-week change %.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/overview?range=&amp;start=&amp;end=</code></td>
+<td><code>current</code> and <code>previous</code> (the equal-length window just before) period metrics: gross sales at list price, price adjustments, discounts, refunds, net sales, transactions, units, average sale, COGS, gross profit, margin %, cost coverage %, plus <code>changePct</code>. Gross − adjustments − discounts − refunds = net.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/top-products?range=&amp;limit=&amp;sort=</code></td>
+<td>Top products from completed sales, <code>sort=revenue\|quantity\|profit</code>. Profit is per line, before sale-level discounts.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/sales-trend?range=&amp;granularity=</code></td>
+<td>Net sales, sale count and gross profit per <code>day</code>|<code>week</code>|<code>month</code> bucket, zero-filled.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/patterns?weeks=8</code></td>
+<td>Average net sales and transactions per local weekday (Monday = 0) and per local hour.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/inventory</code></td>
+<td>Per product: 7- and 30-day daily averages, days of stock left, suggested reorder (pieces for the next 14 days plus 3 days of safety stock), 30-day turnover, stock value at cost, and <code>status</code> (<code>out_of_stock</code>, <code>stockout_risk</code> = 7 days or less, <code>low</code>, <code>slow_moving</code> = no sale in 14 days, <code>overstocked</code> = more than 60 days, <code>healthy</code>).</td>
+</tr>
+<tr>
+<td><code>GET /analytics/forecast</code></td>
+<td><code>{ accuracyPct, weekdayAdjusted, weekdayFactors, items[] }</code>. Each item has <code>forecast7</code>/<code>forecast14</code>, <code>method</code> (<code>history</code>, <code>fallback</code> or <code>none</code>) and <code>confidence</code>. The rate is 0.6 × the 7-day average + 0.4 × the 30-day average, and products with fewer than 14 selling days use a low-confidence fallback. Weekday factors apply once the shop has 4 weeks of history. <code>accuracyPct</code> = 100 − WAPE of a backtest that forecasts last week from the data before it.</td>
+</tr>
+<tr>
+<td><code>GET /analytics/insights</code></td>
+<td>Rule-based <code>{ code, severity, action, params, productId }</code>. The frontend translates <code>code</code>/<code>action</code>; <code>params</code> carries the figures (camelCase keys). Rules: <code>stockout_risk</code>, <code>overstock</code>, <code>low_margin</code>, <code>below_cost</code>, <code>missing_cost</code>, <code>sales_spike</code>/<code>sales_drop</code> (yesterday against the same weekday over 4 weeks), and <code>emerging_bestseller</code>. At most 3 per rule.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "content.code.copy", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
